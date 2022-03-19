@@ -1,0 +1,153 @@
+{% extends 'core/layout/app.html' %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'app-assets/vendors/css/tables/datatable/datatables.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <div class="content-header row">
+            <div class="content-header-left col-md-9 col-12 mb-2">
+                <div class="row breadcrumbs-top">
+                    <div class="col-12">
+                        <h2 class="content-header-title float-left mb-0">{{ title }}</h2>
+                        <div class="breadcrumb-wrapper col-12">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'core.home' %}">Home</a>
+                                </li>
+                                <li class="breadcrumb-item">
+                                    <a href="">{{ title }}</a>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content-body">
+            <section id="basic-datatable">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="card-body card-dashboard">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped zero-configuration">
+                                            <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Profile Photo</th>
+                                                <th>User Info</th>
+                                                <th>Store Info</th>
+                                                <th>Contact</th>
+                                                <th>Country</th>
+                                                <th>Status</th>
+                                                <th class="text-right">Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for data in user_list %}
+                                                <tr>
+                                                    <td>{{ forloop.counter }}</td>
+                                                    <td>
+                                                        <img src="{{ data.profile_photo.url }}" width="50"/>
+                                                    </td>
+                                                    <td>
+                                                        <small>
+                                                            {{ data.name }}
+                                                            <br>
+                                                            {{ data.address }}, {{ data.city.name }}
+                                                            <br>
+                                                            {{ data.country.name }}
+                                                        </small>
+                                                    </td>
+                                                    <td>
+                                                        <small>
+                                                            {% if data.entrepreneur %}
+                                                                Business
+                                                                <br>
+                                                            {% else %}
+                                                                Personal Shopping
+                                                            {% endif %}
+                                                            <b>{{ data.store_name }}</b>
+                                                        </small>
+                                                    </td>
+                                                    <td>
+                                                        <small>
+                                                            <a href="tel:{{ data.mobile }}">{{ data.mobile }}</a>
+                                                            <br>
+                                                            <a href="mailto:{{ data.email }}">{{ data.email }}</a>
+                                                        </small>
+                                                    </td>
+                                                    <td>
+                                                        <img src="{{ data.country.flag }}" width="40"/>
+                                                    </td>
+                                                    <td>
+                                                        {% if data.user_status %}
+                                                            <label class="badge badge-success">Active</label>
+                                                        {% else %}
+                                                            <label class="badge badge-danger">Banned</label>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {% if data.user_status %}
+                                                            <a href="{% url 'core.user.ban' data.id %}"
+                                                               class="btn btn-icon btn-outline-warning btn-sm mr-1 mb-1 mb-lg-0 waves-effect waves-light"
+                                                               data-toggle="tooltip" data-placement="top"
+                                                               title=""
+                                                               data-original-title="Ban">
+                                                                <i class="feather icon-x"></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="{% url 'core.user.unban' data.id %}"
+                                                               class="btn btn-icon btn-outline-success btn-sm mr-1 mb-1 mb-lg-0 waves-effect waves-light"
+                                                               data-toggle="tooltip" data-placement="top"
+                                                               title=""
+                                                               data-original-title="Unban">
+                                                                <i class="feather icon-check"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                        <button type="button"
+                                                                class="btn btn-icon btn-outline-danger btn-sm mr-1 mb-1 mb-lg-0 waves-effect waves-light"
+                                                                data-toggle="tooltip" data-placement="top"
+                                                                title=""
+                                                                data-original-title="Delete"
+                                                                onclick="deleteConfirmation('{% url 'core.user.delete' data.id %}')">
+                                                            <i class="feather icon-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!--/ Zero configuration table -->
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <!-- BEGIN: Page Vendor JS-->
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/pdfmake.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/vfs_fonts.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/datatables.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/datatables.buttons.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/buttons.print.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/buttons.bootstrap.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/datatables.bootstrap4.min.js' %}"></script>
+    <!-- END: Page Vendor JS-->
+
+    <!-- BEGIN: Page JS-->
+    <script src="{% static 'app-assets/js/scripts/datatables/datatable.js' %}"></script>
+    <!-- END: Page JS-->
+{% endblock %}

@@ -1,0 +1,277 @@
+{% extends 'core/layout/app.html' %}
+{% load static %}
+{% load templatetags %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'app-assets/vendors/css/tables/datatable/datatables.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'app-assets/vendors/css/forms/select/select2.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <div class="content-header row">
+            <div class="content-header-left col-md-9 col-12 mb-2">
+                <div class="row breadcrumbs-top">
+                    <div class="col-12">
+                        <h2 class="content-header-title float-left mb-0">{{ title }}</h2>
+                        <div class="breadcrumb-wrapper col-12">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'core.home' %}">Home</a>
+                                </li>
+                                <li class="breadcrumb-item">
+                                    <a href="">{{ title }}</a>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content-body">
+            <section id="basic-datatable">
+                <div class="row">
+                    {% if request.GET.edit %}
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-content">
+                                    <div class="card-header">
+                                        <h5>Edit Category</h5>
+                                    </div>
+                                    <div class="card-body card-dashboard">
+                                        <form action="{% url 'core.category.edit' %}?category={{ request.GET.category }}"
+                                              method="post"
+                                              enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <div class="row">
+                                                <div class="col-12 col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>{{ category_form.name.label }}</label>
+                                                        {{ category_form.name }}
+                                                        <small class="text-danger">{{ category_form.name.errors }}</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-lg-4">
+                                                    <fieldset class="form-group">
+                                                        <label>{{ category_form.image.label }}</label>
+                                                        <div class="custom-file">
+                                                            {{ category_form.image }}
+                                                            <label class="custom-file-label" for="inputGroupFile01">Choose
+                                                                file</label>
+                                                        </div>
+                                                        <small class="text-danger">{{ category_form.image.errors }}</small>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-12 col-lg-4">
+                                                    <div class="form-group">
+                                                        {{ category_form.parent_category }}
+                                                        <label>{{ category_form.parent_category.label }}</label>
+                                                        <select class="select2 form-control"
+                                                                onchange="setParent(this.value)">
+                                                            <option>Select Parent (Optional)</option>
+                                                            {% for cat in category_list %}
+                                                                {% if request.GET.category != cat.id %}
+                                                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 text-right">
+                                                    <button type="submit" class="btn btn-primary">Update</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-content">
+                                    <div class="card-header">
+                                        <h5>Add Category</h5>
+                                    </div>
+                                    <div class="card-body card-dashboard">
+                                        <form action="" method="post" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <div class="row">
+                                                <div class="col-12 col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>{{ category_form.name.label }}</label>
+                                                        {{ category_form.name }}
+                                                        <small class="text-danger">{{ category_form.name.errors }}</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-lg-4">
+                                                    <fieldset class="form-group">
+                                                        <label>{{ category_form.image.label }}</label>
+                                                        <div class="custom-file">
+                                                            {{ category_form.image }}
+                                                            <label class="custom-file-label" for="inputGroupFile01">Choose
+                                                                file</label>
+                                                        </div>
+                                                        <small class="text-danger">{{ category_form.image.errors }}</small>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-12 col-lg-4">
+                                                    <div class="form-group">
+                                                        {{ category_form.parent_category }}
+                                                        <label>{{ category_form.parent_category.label }}</label>
+                                                        <select class="select2 form-control"
+                                                                onchange="setParent(this.value)">
+                                                            <option>Select Parent (Optional)</option>
+                                                            {% for cat in category_list %}
+                                                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 text-right">
+                                                    <button type="submit" class="btn btn-primary">Add</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-content">
+                                    <div class="card-body card-dashboard">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped zero-configuration">
+                                                <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Name</th>
+                                                    <th>Image</th>
+                                                    <th>Parent Category</th>
+                                                    <th>Sequence</th>
+                                                    <th>Status</th>
+                                                    <th class="text-right">Action</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for data in category_list %}
+                                                    <tr>
+                                                        <td>{{ forloop.counter }}</td>
+                                                        <td>{{ data.name }}</td>
+                                                        <td>
+                                                            <img src="{{ data.image.url }}" width="50"
+                                                                 alt="category_image"/>
+                                                        </td>
+                                                        <td>{% get_parent_category_name data.parent_category %}</td>
+                                                        <td style="width: 5%;">
+                                                            {% if data.parent_category == 0 %}
+                                                                <form action="{% url 'core.category.sequence' %}"
+                                                                      method="get">
+                                                                    <input type="text" value="{{ data.id }}"
+                                                                           name="category"
+                                                                           required hidden>
+                                                                    <div class="form-group mt-2">
+                                                                        <input class="form-control text-center"
+                                                                               type="number"
+                                                                               value="{{ data.order_sequence }}"
+                                                                               step="1"
+                                                                               name="order" required>
+                                                                    </div>
+                                                                    <button type="submit" id="sequenceSubmit"
+                                                                            hidden></button>
+                                                                </form>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            {% if data.status %}
+                                                                <label class="badge badge-success">Active</label>
+                                                            {% else %}
+                                                                <label class="badge badge-danger">Inactive</label>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="text-right">
+                                                            {% if data.status %}
+                                                                <a href="{% url 'core.category.status' data.id %}?status=False"
+                                                                   class="btn btn-icon btn-outline-warning btn-sm mr-1 mb-1 mb-lg-0 waves-effect waves-light"
+                                                                   data-toggle="tooltip" data-placement="top"
+                                                                   title=""
+                                                                   data-original-title="Inactive">
+                                                                    <i class="feather icon-slash"></i>
+                                                                </a>
+                                                            {% else %}
+                                                                <a href="{% url 'core.category.status' data.id %}?status=True"
+                                                                   class="btn btn-icon btn-outline-success btn-sm mr-1 mb-1 mb-lg-0 waves-effect waves-light"
+                                                                   data-toggle="tooltip" data-placement="top"
+                                                                   title=""
+                                                                   data-original-title="Active">
+                                                                    <i class="feather icon-check"></i>
+                                                                </a>
+                                                            {% endif %}
+                                                            <a href="{% url 'core.category.edit' %}?edit=True&category={{ data.id }}"
+                                                               class="btn btn-icon btn-outline-success btn-sm mr-1 mb-1 mb-lg-0 waves-effect waves-light"
+                                                               data-toggle="tooltip" data-placement="top" title=""
+                                                               data-original-title="Edit">
+                                                                <i class="feather icon-edit"></i>
+                                                            </a>
+                                                            <button type="button"
+                                                                    class="btn btn-icon btn-outline-primary btn-sm mr-1 mb-1 mb-lg-0 waves-effect waves-light"
+                                                                    data-toggle="tooltip" data-placement="top" title=""
+                                                                    data-original-title="Update Sequence"
+                                                                    onclick="updateSequence()">
+                                                                <i class="feather icon-rotate-ccw"></i>
+                                                            </button>
+                                                            <button type="button"
+                                                                    class="btn btn-icon btn-outline-danger btn-sm mr-1 mb-1 mb-lg-0 waves-effect waves-light"
+                                                                    data-toggle="tooltip" data-placement="top"
+                                                                    title=""
+                                                                    data-original-title="Delete"
+                                                                    onclick="deleteConfirmation('{% url 'core.category.delete' data.id %}')">
+                                                                <i class="feather icon-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+            <!--/ Zero configuration table -->
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <!-- BEGIN: Page Vendor JS-->
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/pdfmake.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/vfs_fonts.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/datatables.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/datatables.buttons.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/buttons.print.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/buttons.bootstrap.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/datatables.bootstrap4.min.js' %}"></script>
+    <!-- END: Page Vendor JS-->
+
+    <!-- BEGIN: Page JS-->
+    <script src="{% static 'app-assets/js/scripts/datatables/datatable.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/forms/select/select2.full.min.js' %}"></script>
+    <script src="{% static 'app-assets/js/scripts/forms/select/form-select2.js' %}"></script>
+    <!-- END: Page JS-->
+    <script>
+        function setParent(value) {
+            $("#id_parent_category").val(value);
+        }
+
+        function updateSequence() {
+            $("#sequenceSubmit").click();
+        }
+    </script>
+{% endblock %}

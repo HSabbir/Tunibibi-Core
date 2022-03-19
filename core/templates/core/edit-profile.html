@@ -1,0 +1,80 @@
+{% extends 'core/layout/app.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <div class="content-header row">
+            <div class="content-header-left col-md-9 col-12 mb-2">
+                <div class="row breadcrumbs-top">
+                    <div class="col-12">
+                        <h2 class="content-header-title float-left mb-0">{{ title }}</h2>
+                        <div class="breadcrumb-wrapper col-12">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'core.home' %}">Home</a>
+                                </li>
+                                <li class="breadcrumb-item">
+                                    <a href="">{{ title }}</a>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content-body">
+            <section id="basic-datatable">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-content mt-1">
+                                <div class="card-body card-dashboard">
+                                    <form action="" method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-12 col-lg-6">
+                                                <div class="form-group">
+                                                    <label>{{ user_change_form.first_name.label }}</label>
+                                                    {{ user_change_form.first_name }}
+                                                    <small class="text-danger">{{ user_change_form.first_name.errors }}</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-lg-6">
+                                                <div class="form-group">
+                                                    <label>{{ user_change_form.last_name.label }}</label>
+                                                    {{ user_change_form.last_name }}
+                                                    <small class="text-danger">{{ user_change_form.last_name.errors }}</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-lg-6">
+                                                <div class="form-group">
+                                                    <label>{{ user_change_form.email.label }}</label>
+                                                    {{ user_change_form.email }}
+                                                    <small class="text-danger">{{ user_change_form.email.errors }}</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-lg-6">
+                                                <fieldset class="form-group">
+                                                    <label for="basicInputFile">{{ user_change_form.profile_photo.label }}</label>
+                                                    <div class="custom-file">
+                                                        {{ user_change_form.profile_photo }}
+                                                        <label class="custom-file-label" for="inputGroupFile01">Choose
+                                                            file</label>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                            <div class="col-12 col-lg-2">
+                                                <button type="submit" class="btn btn-primary btn-block">Save</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!--/ Zero configuration table -->
+        </div>
+    </div>
+{% endblock %}

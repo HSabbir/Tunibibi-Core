@@ -1,0 +1,117 @@
+{% extends 'core/layout/app.html' %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'app-assets/vendors/css/tables/datatable/datatables.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <div class="content-header row">
+            <div class="content-header-left col-md-9 col-12 mb-2">
+                <div class="row breadcrumbs-top">
+                    <div class="col-12">
+                        <h2 class="content-header-title float-left mb-0">{{ title }}</h2>
+                        <div class="breadcrumb-wrapper col-12">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'core.home' %}">Home</a>
+                                </li>
+                                <li class="breadcrumb-item">
+                                    <a href="">{{ title }}</a>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content-body">
+            <section id="basic-datatable">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="card-body card-dashboard">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped zero-configuration">
+                                            <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Live Banner</th>
+                                                <th>Live Title</th>
+                                                <th>Timestamp</th>
+                                                <th>Store Info</th>
+                                                <th>Views</th>
+                                                <th>Reactions</th>
+                                                <th>Comments</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for data in live_list %}
+                                                <tr>
+                                                    <td>{{ forloop.counter }}</td>
+                                                    <td>
+                                                        <img src="{{ data.live.banner_image.url }}" width="60"/>
+                                                    </td>
+                                                    <td>{{ data.live.title }}</td>
+                                                    <td>
+                                                        <small>
+                                                            <b>Start: </b>{{ data.live.schedule_datetime }}
+                                                            <br>
+                                                            <b>End: </b>{{ data.live.end_datetime }}
+                                                            <br>
+                                                            <b>Duration: </b>{{ data.live.duration }} minutes
+                                                        </small>
+                                                    </td>
+                                                    <td>
+                                                        <small>
+                                                            {{ data.live.user.seller.name }}
+                                                            <br>
+                                                            <b>{{ data.live.user.seller.store_name }}</b>
+                                                            <br>
+                                                            {{ data.live.user.seller.store_type }}
+                                                        </small>
+                                                    </td>
+                                                    <td>
+                                                        {{ data.views }}
+                                                    </td>
+                                                    <td>
+                                                        {{ data.reaction }}
+                                                    </td>
+                                                    <td>
+                                                        {{ data.comments }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!--/ Zero configuration table -->
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <!-- BEGIN: Page Vendor JS-->
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/pdfmake.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/vfs_fonts.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/datatables.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/datatables.buttons.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/buttons.print.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/buttons.bootstrap.min.js' %}"></script>
+    <script src="{% static 'app-assets/vendors/js/tables/datatable/datatables.bootstrap4.min.js' %}"></script>
+    <!-- END: Page Vendor JS-->
+
+    <!-- BEGIN: Page JS-->
+    <script src="{% static 'app-assets/js/scripts/datatables/datatable.js' %}"></script>
+    <!-- END: Page JS-->
+{% endblock %}
