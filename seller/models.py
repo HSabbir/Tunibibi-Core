@@ -102,6 +102,12 @@ class ShopProduct(models.Model):
     def __str__(self):
         return str(self.name)
 
+class Live(models.Model):
+    title = models.CharField(max_length=200)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    viewers = models.IntegerField(default=0)
+    products = models.ManyToManyField(ShopProduct,null=True)
 
 class Review(models.Model):
     product = models.ForeignKey(ShopProduct,on_delete=models.CASCADE, related_name='review', null=True, blank=True)

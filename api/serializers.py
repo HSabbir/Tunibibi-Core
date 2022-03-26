@@ -274,7 +274,15 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
         fields = ['id', 'name', 'slug', 'category', 'subcategory', 'wholesale_price', 'product_details', 'weight',
                   'weight_unit', 'weight_unit_id', 'video_url', 'product_origin', 'product_image', 'variant',
                   'product_status', 'model_no', 'country_code']
+    class Meta:
+        model = Coupon
+        fields = '__all__'
 
+
+class LiveSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Live
+        fields = '__all__'
 
 class ReviewSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
     img = serializers.SerializerMethodField('get_image')

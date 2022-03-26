@@ -6,3 +6,4 @@ router = routers.DefaultRouter()
 
 router.register('products',ProductViewset)
 router.register('popular_products',PopularProducts)
+router.register('live',LiveViewsets)

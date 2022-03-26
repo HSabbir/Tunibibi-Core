@@ -19,3 +19,9 @@ class PopularProducts(viewsets.ReadOnlyModelViewSet):
     serializer_class = ShopProductsReadSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+
+class LiveViewsets(viewsets.ModelViewSet):
+    queryset = Live.objects.all()
+    serializer_class = LiveSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
