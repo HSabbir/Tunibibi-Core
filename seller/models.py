@@ -103,6 +103,7 @@ class ShopProduct(models.Model):
         return str(self.name)
 
 class Live(models.Model):
+    user = models.ForeignKey(ShopInfo,on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
