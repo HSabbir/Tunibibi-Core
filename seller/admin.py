@@ -22,6 +22,7 @@ class ProductSubcategoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'category_name']
 
 
+admin.site.register(ShopOverView)
 admin.site.register(BusinessType, BusinessTypesAdmin)
 admin.site.register(HomePromoBanner, HomePromoBannerAdmin)
 admin.site.register(ProductWeightUnit, ProductWeightUnitAdmin)

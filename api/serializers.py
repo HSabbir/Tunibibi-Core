@@ -276,6 +276,29 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
                   'product_status', 'model_no', 'country_code']
 
 
+class ShopOverviewSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
+    name = serializers.SerializerMethodField('get_user_name')
+    img = serializers.SerializerMethodField('get_image')
+    followers_count = serializers.ReadOnlyField()
+    product_count = serializers.ReadOnlyField()
+    positive_feedback = serializers.ReadOnlyField()
+    class Meta:
+        model = ShopOverView
+        fields = ['shop','followers_count','product_count', 'positive_feedback','name','img']
+
+    def get_user_name(self, Reward):
+        try:
+            name = ShopOverView.shop.business_name
+            return name
+        except:
+            return ""
+
+    def get_image(self, Reward):
+        try:
+            image = ShopOverView.shop.business_logo.url
+            return image
+        except:
+            return ""
 
 class LiveSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
     class Meta:

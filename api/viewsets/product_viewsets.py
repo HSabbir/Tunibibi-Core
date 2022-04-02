@@ -25,3 +25,9 @@ class LiveViewsets(viewsets.ModelViewSet):
     serializer_class = LiveSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+
+class ShopOverView(viewsets.ReadOnlyModelViewSet):
+    queryset = ShopOverView.objects.all()
+    serializer_class = ShopOverviewSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]

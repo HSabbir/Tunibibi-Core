@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import uuid
 from buyer.models import BuyerInfo
-
+from django.db.models import Sum,Avg
 
 def generate_filename(instance, filename):
     extension = filename.split('.')[-1]
@@ -34,9 +34,31 @@ class ShopInfo(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    followers = models.ManyToManyField(BuyerInfo, null=True)
+
     def __str__(self):
         return str(self.user)
 
+class ShopOverView(models.Model):
+    shop = models.ForeignKey(ShopInfo, on_delete=models.CASCADE, related_name='shop_overview')
+
+    @property
+    def followers_count(self):
+        number_of_followers = self.shop.followers.count()
+        return number_of_followers
+
+    @property
+    def positive_feedback(self):
+        positive_feedback = Review.objects.filter(product__user=self.shop.user)
+        total_ratings = positive_feedback.aggregate(Sum('ratings'))
+        total_review = positive_feedback.count()
+        calculate_avg = (total_ratings['ratings__sum'] * 100.0/ (total_review * 5.0))
+        return calculate_avg
+
+    @property
+    def product_count(self):
+        product_count = ShopProduct.objects.filter(user = self.shop.user).count()
+        return product_count
 
 class ShopOnlineStatus(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='seller_online', null=True, blank=True)
@@ -101,6 +123,7 @@ class ShopProduct(models.Model):
 
     def __str__(self):
         return str(self.name)
+
 
 class Live(models.Model):
     user = models.ForeignKey(ShopInfo,on_delete=models.CASCADE)
