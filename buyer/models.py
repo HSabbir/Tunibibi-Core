@@ -7,7 +7,7 @@ class BuyerInfo(models.Model):
     country = models.CharField(max_length=200, null=True, blank=True)
     mobile_number = models.CharField(max_length=20)
     address = models.TextField(null=True)
-    photo = models.IntegerField(null=True,blank=True)
+    photo = models.ImageField(null=True,blank=True)
     city = models.TextField(null=True)
     postcode = models.TextField(null=True)
     reg_ip = models.GenericIPAddressField(null=True)

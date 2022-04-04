@@ -1791,6 +1791,30 @@ def getLeaderboard(request):
             "message": str(e)
         })
 
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def getBuyerLeaderboard(request):
+    try:
+        current_user = BuyerInfo.objects.get(user=request.user)
+        country = current_user.country
+        users = BuyerReward.objects.filter(user__country=country)
+
+        serializer = LeaderBoardSerializer(users, many=True)
+
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'Ok',
+            'serializers': serializer.data
+        })
+
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
 
 @api_view(['POST'])
 def RewardForPoint(request):
@@ -2017,30 +2041,3 @@ def follow(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
-
-# @api_view(['POST'])
-# @authentication_classes([JWTAuthentication])
-# @permission_classes([IsAuthenticated])
-# @buyer_only
-# def buy_together(request):
-#     try:
-#         payload = request.data
-#         user = ShopInfo.objects.get(user=request.user)
-#         request_serializer = BuyTogetherSerializer (data=payload)
-#         if request_serializer.is_valid():
-#             request_serializer.save()
-#
-#             obj = Reward.objects.get(user=user)
-#             obj.point = obj.point - deduct_point
-#
-#             obj.save()
-#
-#             updateSellerRank(user.business_country)
-#
-#             return Response(request_serializer.data)
-#
-#     except Exception as e:
-#         return Response({
-#             "code": status.HTTP_400_BAD_REQUEST,
-#             "message": str(e)
-#         })
