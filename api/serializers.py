@@ -1,3 +1,4 @@
+from buyer.models import BuyerReward, BuyerRechargeHistory
 from seller.models import *
 from customer.models import *
 from django.contrib.auth.models import User
@@ -513,6 +514,27 @@ class LeaderBoardSerializer(FriendlyErrorMessagesMixin, serializers.ModelSeriali
         image = Reward.user.business_logo.url
         return image
 
+class BuyerLeaderBoardSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
+    user = serializers.SerializerMethodField('get_mobile')
+    name = serializers.SerializerMethodField('get_user_name')
+    photo = serializers.SerializerMethodField('get_image')
+
+    class Meta:
+        model = BuyerReward
+        fields = ['user', 'point', 'rank', 'name', 'photo']
+
+    def get_mobile(self, BuyerReward):
+        user = BuyerReward.user.mobile_number
+        return user
+
+    def get_user_name(self, BuyerReward):
+        name = BuyerReward.user.name
+        return name
+
+    def get_image(self, BuyerReward):
+        image = BuyerReward.user.photo.url
+        return image
+
 
 class RewardForPointSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
     class Meta:
@@ -532,6 +554,11 @@ class ClaimRechargeSerializer(FriendlyErrorMessagesMixin, serializers.ModelSeria
         model = RechargeHistory
         fields = '__all__'
 
+class BuyerClaimRechargeSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
+    class Meta:
+        model = BuyerRechargeHistory
+        fields = '__all__'
+
 
 class Seller_textSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
     class Meta:
@@ -545,7 +572,9 @@ class PointSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
         fields = '__all__'
 
 
-class BuyTogetherSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
+
+class BuyTogetherReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
+    order_item = OrderItemSerializer(source='buy_together_item', many=True)
     class Meta:
         model = BuyTogether
-        fields = ['item_need','buy_together_price','time_end']
+        fields = '__all__'

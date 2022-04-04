@@ -1079,23 +1079,11 @@ def placeOrder(request):
         if place_order_serializer.is_valid():
             for product in payload['products']:
                 if 'buy_together' in product:
-                    buy_together_obj = BuyTogether.objects.create(item_need=product['item_need']-product['quantity'],
-                                                     buy_together_price=product['buy_together_price'])
-                    if buy_together_obj.item_need <0:
-                        buy_together_obj.item_need = 0
-                    buy_together_obj.save()
                     del product['buy_together']
                     del product['item_need']
                     del product['buy_together_price']
 
                 elif 'buy_together_id' in product:
-                    buy_together_obj = BuyTogether.objects.filter(id=product['buy_together_id']).first()
-                    buy_together_obj.item_need = buy_together_obj.item_need - product['quantity']
-
-                    if buy_together_obj.item_need <0:
-                        buy_together_obj.item_need = 0
-                    buy_together_obj.save()
-
                     del product['buy_together_id']
                 product_serializer = OrderItemSerializer(data=product)
                 if not product_serializer.is_valid():
@@ -1122,11 +1110,30 @@ def placeOrder(request):
             grand_total = order_instance.delivery_fee - order_instance.coupon_discount
             item_total = 0
 
-            for product in payload['products']:
+            for product in request.data['products']:
                 product_instance = ShopProduct.objects.get(id=product['product_id'])
                 product['order'] = order_instance.id
+                if 'buy_together' in product:
+                    buy_together_obj = BuyTogether.objects.create(item_need=product['item_need']-product['quantity'],
+                                                     buy_together_price=product['buy_together_price'])
+                    if buy_together_obj.item_need <0:
+                        buy_together_obj.item_need = 0
+                    buy_together_obj.save()
+                    del product['buy_together']
+                    del product['item_need']
+                    del product['buy_together_price']
 
-                if buy_together_obj.id is not None:
+                    product['buy_together'] = buy_together_obj.id
+                elif 'buy_together_id' in product:
+                    buy_together_obj = BuyTogether.objects.filter(id=product['buy_together_id']).first()
+                    buy_together_obj.item_need = buy_together_obj.item_need - product['quantity']
+
+                    if buy_together_obj.item_need <0:
+                        buy_together_obj.item_need = 0
+                    buy_together_obj.save()
+
+                    del product['buy_together_id']
+
                     product['buy_together'] = buy_together_obj.id
 
                 product['item_name'] = product_instance.name
@@ -1801,7 +1808,7 @@ def getBuyerLeaderboard(request):
         country = current_user.country
         users = BuyerReward.objects.filter(user__country=country)
 
-        serializer = LeaderBoardSerializer(users, many=True)
+        serializer = BuyerLeaderBoardSerializer(users, many=True)
 
         return Response({
             'code': status.HTTP_200_OK,
@@ -1932,6 +1939,34 @@ def claimrecharge(request):
 
 
 @api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def buyerclaimrecharge(request):
+    try:
+        payload = request.data
+        deduct_point = payload["point"]
+        user = BuyerInfo.objects.get(user=request.user)
+        request_serializer = BuyerClaimRechargeSerializer(data=payload)
+        if request_serializer.is_valid():
+            request_serializer.save()
+
+            obj = BuyerReward.objects.get(user=user)
+            obj.point = obj.point - deduct_point
+
+            obj.save()
+
+            updateBuyerRank(user.country)
+
+            return Response(request_serializer.data)
+
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+@api_view(['POST'])
 def how_it_works(request):
     try:
         payload = request.data
@@ -1971,6 +2006,26 @@ def current_status(request):
             "message": str(e)
         })
 
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def current_buyer_status(request):
+    try:
+        user = BuyerInfo.objects.get(user=request.user)
+        obj = BuyerReward.objects.get(user=user)
+        serializers = BuyerLeaderBoardSerializer(obj)
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'Your Status is',
+            'serializers': serializers.data
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
 
 @api_view(['POST'])
 def reward_post(request):

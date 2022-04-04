@@ -193,7 +193,7 @@ class Orders(models.Model):
 
 class OrderItems(models.Model):
     order = models.ForeignKey(Orders, on_delete=models.CASCADE, related_name='order_item')
-    buy_together = models.ForeignKey(BuyTogether,on_delete=models.PROTECT,null=True)
+    buy_together = models.ForeignKey(BuyTogether,on_delete=models.PROTECT, null=True, related_name='buy_together_item')
     product_id = models.IntegerField()
     item_name = models.CharField(max_length=200)
     quantity = models.IntegerField()

@@ -103,7 +103,10 @@ urlpatterns = [
 
     path('buyer/',include(router.urls)),
 
+    path('buyer/getLeaderboard',getBuyerLeaderboard),
+    path('buyer/get_current_rank',current_buyer_status),
+    path('buyer/claimrecharge',buyerclaimrecharge),
+
     path('buyer/follow',follow),
     path('buyer/place-order',placeOrder)
-
 ]

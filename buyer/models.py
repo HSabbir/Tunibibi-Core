@@ -7,7 +7,7 @@ class BuyerInfo(models.Model):
     country = models.CharField(max_length=200, null=True, blank=True)
     mobile_number = models.CharField(max_length=20)
     address = models.TextField(null=True)
-    photo = models.ImageField(null=True,blank=True)
+    photo = models.ImageField(default='default/default-logo.png',null=True,blank=True)
     city = models.TextField(null=True)
     postcode = models.TextField(null=True)
     reg_ip = models.GenericIPAddressField(null=True)
@@ -33,3 +33,9 @@ class BuyerInvitationCode(models.Model):
 
     def __str__(self):
         return str(self.user)
+
+class BuyerRechargeHistory(models.Model):
+    mobile = models.CharField(max_length=40)
+    country = models.CharField(max_length=400, null=True)
+    operator = models.CharField(max_length=400, null=True)
+    amount = models.CharField(max_length=400, null=True)
