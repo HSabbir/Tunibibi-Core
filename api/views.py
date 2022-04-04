@@ -1070,13 +1070,33 @@ def createCustomer(request):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-@customer_only
+@buyer_or_customer
 def placeOrder(request):
     try:
         payload = request.data
+        buy_together_obj = None
         place_order_serializer = PlaceOrderSerializer(data=payload)
         if place_order_serializer.is_valid():
             for product in payload['products']:
+                if 'buy_together' in product:
+                    buy_together_obj = BuyTogether.objects.create(item_need=product['item_need']-product['quantity'],
+                                                     buy_together_price=product['buy_together_price'])
+                    if buy_together_obj.item_need <0:
+                        buy_together_obj.item_need = 0
+                    buy_together_obj.save()
+                    del product['buy_together']
+                    del product['item_need']
+                    del product['buy_together_price']
+
+                elif 'buy_together_id' in product:
+                    buy_together_obj = BuyTogether.objects.filter(id=product['buy_together_id']).first()
+                    buy_together_obj.item_need = buy_together_obj.item_need - product['quantity']
+
+                    if buy_together_obj.item_need <0:
+                        buy_together_obj.item_need = 0
+                    buy_together_obj.save()
+
+                    del product['buy_together_id']
                 product_serializer = OrderItemSerializer(data=product)
                 if not product_serializer.is_valid():
                     return Response(product_serializer.errors)
@@ -1105,6 +1125,10 @@ def placeOrder(request):
             for product in payload['products']:
                 product_instance = ShopProduct.objects.get(id=product['product_id'])
                 product['order'] = order_instance.id
+
+                if buy_together_obj.id is not None:
+                    product['buy_together'] = buy_together_obj.id
+
                 product['item_name'] = product_instance.name
                 product['subtotal'] = round(float(product['quantity']) * float(product['unit_price']), 2)
                 item_total += round(float(product['quantity']) * float(product['unit_price']), 2)
@@ -1118,6 +1142,26 @@ def placeOrder(request):
             order_instance.item_total = item_total
             order_instance.grand_total = grand_total
             order_instance.save()
+
+
+
+            if 'transection_id' in payload:
+                try:
+                    payment_method = PaymentMethods.objects.filter(method_name=payload['payment_method']).first()
+                    obj = PaymentTransection.objects.create(
+                        order=order_instance,
+                        payment_method = payment_method,
+                        transection_id = payload['transection_id']
+                        )
+                    obj.save()
+                except:
+                    return Response({
+                        "code": status.HTTP_200_OK,
+                        "message": "Your order has been saved but error in payment method",
+                        "data": {
+                            "order_id": order_id
+                        }
+                    })
 
             return Response({
                 "code": status.HTTP_200_OK,
@@ -1946,3 +1990,57 @@ def post_referal_point(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
+
+@api_view(['PATCH'])
+def follow(request):
+    try:
+        payload = request.data
+        data_serializer = FollowerSerializer(data=payload)
+        shop = ShopInfo.objects.filter(id=payload['id']).first()
+        buyer = BuyerInfo.objects.filter(id=payload['followers']).first()
+
+        if shop.user != buyer.user:
+            shop.followers.add(buyer)
+            shop.save()
+
+            return Response({
+                'code': status.HTTP_200_OK,
+                'msg': 'Follower Added!'
+            })
+
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'Buyer And Seller is same user!'
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+# @api_view(['POST'])
+# @authentication_classes([JWTAuthentication])
+# @permission_classes([IsAuthenticated])
+# @buyer_only
+# def buy_together(request):
+#     try:
+#         payload = request.data
+#         user = ShopInfo.objects.get(user=request.user)
+#         request_serializer = BuyTogetherSerializer (data=payload)
+#         if request_serializer.is_valid():
+#             request_serializer.save()
+#
+#             obj = Reward.objects.get(user=user)
+#             obj.point = obj.point - deduct_point
+#
+#             obj.save()
+#
+#             updateSellerRank(user.business_country)
+#
+#             return Response(request_serializer.data)
+#
+#     except Exception as e:
+#         return Response({
+#             "code": status.HTTP_400_BAD_REQUEST,
+#             "message": str(e)
+#         })

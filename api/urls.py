@@ -101,6 +101,9 @@ urlpatterns = [
     path('createreview',createReview),
     path('getreview/<int:pk>',getReview),
 
-    path('buyer/',include(router.urls))
+    path('buyer/',include(router.urls)),
+
+    path('buyer/follow',follow),
+    path('buyer/place-order',placeOrder)
 
 ]

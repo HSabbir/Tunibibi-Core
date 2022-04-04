@@ -300,6 +300,11 @@ class ShopOverviewSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerial
         except:
             return ""
 
+class FollowerSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
+    class Meta:
+        model = ShopInfo
+        fields = ['id','followers']
+
 class LiveSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
     class Meta:
         model = Live
@@ -538,3 +543,9 @@ class PointSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
     class Meta:
         model = Point
         fields = '__all__'
+
+
+class BuyTogetherSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
+    class Meta:
+        model = BuyTogether
+        fields = ['item_need','buy_together_price','time_end']

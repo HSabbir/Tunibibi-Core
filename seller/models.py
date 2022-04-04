@@ -164,6 +164,13 @@ class ProductImages(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+class BuyTogether(models.Model):
+    item_need = models.IntegerField()
+    buy_together_price = models.FloatField()
+    time_end = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 class Orders(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seller_user')
@@ -186,6 +193,7 @@ class Orders(models.Model):
 
 class OrderItems(models.Model):
     order = models.ForeignKey(Orders, on_delete=models.CASCADE, related_name='order_item')
+    buy_together = models.ForeignKey(BuyTogether,on_delete=models.PROTECT,null=True)
     product_id = models.IntegerField()
     item_name = models.CharField(max_length=200)
     quantity = models.IntegerField()
@@ -220,6 +228,12 @@ class PaymentMethods(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seller_pay_method')
     method_name = models.CharField(max_length=200)
     method_details = models.TextField(null=True)
+
+class PaymentTransection(models.Model):
+    order = models.ForeignKey(Orders,on_delete=models.CASCADE,related_name='transection_order')
+    payment_method = models.ForeignKey(PaymentMethods,on_delete=models.CASCADE,related_name='transection_method')
+    transection_id = models.CharField(max_length=200)
+
 
 
 class ExtraCharge(models.Model):

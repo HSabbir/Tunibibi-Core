@@ -72,3 +72,6 @@ admin.site.register(Product_deal)
 
 admin.site.register(ProductSizeStock)
 admin.site.register(Review)
+admin.site.register(Orders)
+admin.site.register(OrderItems)
+admin.site.register(BuyTogether )
