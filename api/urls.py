@@ -1,4 +1,5 @@
 from django.urls import path, include
+
 from .views import *
 from .router import *
 
@@ -106,6 +107,7 @@ urlpatterns = [
     path('buyer/getLeaderboard',getBuyerLeaderboard),
     path('buyer/get_current_rank',current_buyer_status),
     path('buyer/claimrecharge',buyerclaimrecharge),
+    path('buyer/seller_recomended/<int:pk>',getSellerRecomendedProducts),
 
     path('buyer/follow',follow),
     path('buyer/place-order',placeOrder)

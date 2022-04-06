@@ -850,6 +850,7 @@ def deleteProductImage(request):
             "message": str(e)
         })
 
+from django.db import connection
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
@@ -858,6 +859,27 @@ def deleteProductImage(request):
 def getShopProducts(request):
     try:
         shop_products = ShopProduct.objects.filter(user=request.user)
+        print(connection.queries)
+        response_serializer = ShopProductsReadSerializer(shop_products, many=True, context={'request': request})
+        return Response({
+            'code': status.HTTP_200_OK,
+            'message': 'Products received successfully.',
+            'data': response_serializer.data
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def getSellerRecomendedProducts(request,pk):
+    try:
+        shop_products = ShopProduct.objects.filter(user=pk).order_by('-created_at')
+        if len(shop_products) > 5:
+            shop_products = shop_products[5]
         response_serializer = ShopProductsReadSerializer(shop_products, many=True, context={'request': request})
         return Response({
             'code': status.HTTP_200_OK,

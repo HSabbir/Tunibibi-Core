@@ -119,6 +119,8 @@ class ShopProduct(models.Model):
     model_no = models.TextField(null=True, blank=True)
     country_code = models.TextField(null=True, blank=True)
     product_status = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     total_sale = models.IntegerField(default=0)
 
     def __str__(self):
