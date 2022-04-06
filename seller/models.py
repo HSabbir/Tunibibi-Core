@@ -119,7 +119,7 @@ class ShopProduct(models.Model):
     model_no = models.TextField(null=True, blank=True)
     country_code = models.TextField(null=True, blank=True)
     product_status = models.BooleanField(default=False)
-    total_sale = models.IntegerField()
+    total_sale = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.name)
