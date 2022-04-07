@@ -762,6 +762,10 @@ def addProduct(request):
                 time_prefix = str(datetime.now().timestamp()).split('.')[1]
                 product_instance = ShopProduct.objects.get(id=product_id)
                 product_instance.slug = "%s-%s" % (time_prefix, slugify(product_instance.name))
+
+                if 'wholesale_price' in payload:
+                    product_instance.basic_price = payload['wholesale_price'][0]['amount']
+
                 product_instance.save()
                 return Response({
                     'code': status.HTTP_200_OK,

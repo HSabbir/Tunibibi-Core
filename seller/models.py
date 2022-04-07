@@ -111,6 +111,7 @@ class ShopProduct(models.Model):
     category = models.ForeignKey(ProductCategory, on_delete=models.PROTECT, related_name='sell_prod_category')
     subcategory = models.ForeignKey(ProductSubcategory, on_delete=models.PROTECT, related_name='sell_prod_subcategory')
     wholesale_price = models.JSONField()
+    basic_price = models.FloatField(default=0)
     product_details = models.TextField(null=True)
     weight = models.CharField(max_length=20)
     weight_unit = models.ForeignKey(ProductWeightUnit, on_delete=models.PROTECT, related_name='sell_weight_unit')
