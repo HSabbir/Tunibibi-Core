@@ -53,3 +53,12 @@ class BuyTogether(viewsets.ReadOnlyModelViewSet):
     serializer_class = BuyTogetherReadSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+
+class FolderViewset(viewsets.ModelViewSet):
+    serializer_class = AddFolderWithProductSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self):
+        user = self.request.user
+        return BuyerFolderToSaveProduct.objects.filter(buyer__user=user)

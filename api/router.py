@@ -9,3 +9,4 @@ router.register('popular_products',PopularProducts)
 router.register('live',LiveViewsets),
 router.register('shop_overview',ShopOverView),
 router.register('buytogether',BuyTogether),
+router.register('buyer_save_folder',FolderViewset,basename='BuyerFolderToSaveProduct')

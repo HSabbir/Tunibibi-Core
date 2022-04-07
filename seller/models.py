@@ -317,3 +317,9 @@ class Invitation_seller_text(models.Model):
 
     def __str__(self):
         return self.heading
+
+
+class BuyerFolderToSaveProduct(models.Model):
+    folder_name = models.CharField(max_length=100)
+    buyer = models.ForeignKey(BuyerInfo,on_delete=models.CASCADE, related_name='folder_creator')
+    products = models.ManyToManyField(ShopProduct,null=True)

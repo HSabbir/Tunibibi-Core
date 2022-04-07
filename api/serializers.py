@@ -578,3 +578,8 @@ class BuyTogetherReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSer
     class Meta:
         model = BuyTogether
         fields = '__all__'
+
+class AddFolderWithProductSerializer(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+    class Meta:
+        model = BuyerFolderToSaveProduct
+        fields = ['folder_name','buyer','products']

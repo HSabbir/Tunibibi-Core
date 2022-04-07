@@ -39,3 +39,4 @@ class BuyerRechargeHistory(models.Model):
     country = models.CharField(max_length=400, null=True)
     operator = models.CharField(max_length=400, null=True)
     amount = models.CharField(max_length=400, null=True)
+
