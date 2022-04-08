@@ -4,16 +4,16 @@ def updateSellerRank(country):
     count=1
     for seller in sellers:
         seller.rank = count
-        seller.save()
         count +=1
+    Reward.objects.bulk_update(sellers,['rank'])
 
 def updateBuyerRank(country):
     buyers = BuyerReward.objects.filter(user__country = country).order_by('-point')
     count=1
     for buyer in buyers:
         buyer.rank = count
-        buyer.save()
         count +=1
+    BuyerReward.objects.bulk_update(buyers,['rank'])
 
 def updateSeller(user , point):
     try:
@@ -57,7 +57,7 @@ def updateBuyer(user , point):
 
 def getPointOfCountry(country):
     try:
-        point = Point.objects.get(country=country)
+        point = Point.objects.filter(country=country).first()
         return point.point
     except:
         return "point not exists"
