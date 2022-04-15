@@ -126,7 +126,15 @@ class ShopProduct(models.Model):
 
     def __str__(self):
         return str(self.name)
+    @property
+    def ratings(self):
+        rating = Review.objects.filter(product_id=self.id).aggregate(Avg('ratings'))
+        return rating['ratings__avg']
 
+    @property
+    def order_count(self):
+        orders = OrderItems.objects.filter(product_id=self.id).count()
+        return orders
 
 class Live(models.Model):
     user = models.ForeignKey(ShopInfo,on_delete=models.CASCADE)
