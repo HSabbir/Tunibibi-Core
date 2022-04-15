@@ -48,7 +48,7 @@ class ShopOverView(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
-class BuyTogether(viewsets.ReadOnlyModelViewSet):
+class BuyTogether(viewsets.ModelViewSet):
     queryset = BuyTogether.objects.all()
     serializer_class = BuyTogetherReadSerializer
     permission_classes = [IsAuthenticated]
