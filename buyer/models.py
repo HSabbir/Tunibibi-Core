@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class BuyerInfo(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='buyer_auth', null=True, blank=True)
     name = models.CharField(max_length=200, null=True, blank=True)
@@ -39,4 +40,3 @@ class BuyerRechargeHistory(models.Model):
     country = models.CharField(max_length=400, null=True)
     operator = models.CharField(max_length=400, null=True)
     amount = models.CharField(max_length=400, null=True)
-

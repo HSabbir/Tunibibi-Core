@@ -1712,7 +1712,10 @@ def getReview(request,pk=None):
         sum_ratings = 0
         for q in reviews:
             sum_ratings += q.ratings
-        avg_rating=(sum_ratings/total_review)
+        try:
+            avg_rating=(sum_ratings/total_review)
+        except:
+            avg_rating = 0
 
         serializer = ReviewSerializer(reviews, many=True)
 
