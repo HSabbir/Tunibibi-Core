@@ -31,8 +31,10 @@ admin.site.register(ProductSubcategory, ProductSubcategoryAdmin)
 
 
 admin.site.register(ShopProduct)
-admin.site.register(ShopInfo)
 
+@admin.register(ShopInfo)
+class ShopInfoModelAdmin(admin.ModelAdmin):
+    list_display = ('id','mobile_number')
 
 @admin.register(ProductVariant)
 class ProductVariantModelAdmin(admin.ModelAdmin):

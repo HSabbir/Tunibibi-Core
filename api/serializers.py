@@ -583,3 +583,19 @@ class AddFolderWithProductSerializer(FriendlyErrorMessagesMixin,serializers.Mode
     class Meta:
         model = BuyerFolderToSaveProduct
         fields = ['folder_name','buyer','products']
+
+
+class BuyerInfoUpdateSerialiser(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+    class Meta:
+        model = BuyerInfo
+        fields = ['name','country','mobile_number','address','photo','city','postcode']
+
+        extra_kwargs = {
+            "name": {"required": False},
+            "country": {"required": False},
+            "mobile_number" : {"required": False},
+            "address" : {"required": False},
+            "photo": {"required": False},
+            "city": {"required": False},
+            "postcode": {"required": False}
+        }

@@ -1,4 +1,5 @@
 from .importFile import *
+
 def updateSellerRank(country):
     sellers = Reward.objects.filter(user__business_country = country).order_by('-point')
     count=1

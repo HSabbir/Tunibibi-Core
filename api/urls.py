@@ -108,7 +108,10 @@ urlpatterns = [
     path('buyer/get_current_rank',current_buyer_status),
     path('buyer/claimrecharge',buyerclaimrecharge),
     path('buyer/seller_recomended/<int:pk>',getSellerRecomendedProducts),
+    path('buyer/all_item/<int:pk>',getSeller_all_item),
 
     path('buyer/follow',follow),
-    path('buyer/place-order',placeOrder)
+    path('buyer/place-order',placeOrder),
+
+    path('buyer/updateProfile',updateProfile)
 ]
