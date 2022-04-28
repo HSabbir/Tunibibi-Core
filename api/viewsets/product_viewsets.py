@@ -25,7 +25,7 @@ class ProductViewset(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     filter_backends = [filters.SearchFilter,filters.OrderingFilter,filters_b.DjangoFilterBackend]
-    ordering_fields = ['created_at','basic_price']
+    ordering_fields = ['created_at','basic_price','total_sale']
     search_fields = ['name', 'slug','category__category_name','subcategory__category_name','product_details','country_code']
     filter_class = ProductFilter
 

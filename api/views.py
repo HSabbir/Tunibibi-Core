@@ -1138,6 +1138,8 @@ def placeOrder(request):
 
             for product in request.data['products']:
                 product_instance = ShopProduct.objects.get(id=product['product_id'])
+                product_instance.total_sale += product["quantity"]
+
                 product['order'] = order_instance.id
                 if 'buy_together' in product:
                     buy_together_obj = BuyTogether.objects.create(item_need=product['item_need']-product['quantity'],
@@ -1170,6 +1172,8 @@ def placeOrder(request):
                     save_serializer.save()
                 else:
                     return Response(save_serializer.errors)
+
+            product_instance.save()
 
             grand_total += item_total
             order_instance.item_total = item_total
