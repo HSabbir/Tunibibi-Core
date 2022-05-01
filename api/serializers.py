@@ -579,10 +579,6 @@ class BuyTogetherReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSer
         model = BuyTogether
         fields = '__all__'
 
-class AddFolderWithProductSerializer(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
-    class Meta:
-        model = BuyerFolderToSaveProduct
-        fields = ['folder_name','buyer','products']
 
 class BuyerInfoUpdateSerialiser(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
     class Meta:
@@ -608,3 +604,15 @@ class GetSizeSerializer(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
     class Meta:
         model = ProductSizeStock
         fields = ['size']
+
+
+class AddFolderWithProductSerializer(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+    class Meta:
+        model = BuyerFolderToSaveProduct
+        fields = ['folder_name','buyer','products']
+
+class GetFolderWithProductSerializer(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+    products = ShopProductsReadSerializer(many=True)
+    class Meta:
+        model = BuyerFolderToSaveProduct
+        fields = ['folder_name','products']

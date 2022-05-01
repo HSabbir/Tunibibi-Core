@@ -1,6 +1,7 @@
 from ..importFile import *
 
 from django_filters import rest_framework as filters_b
+from .mixins import GetSerializerClassMixin
 
 from rest_framework import viewsets
 from rest_framework import filters
@@ -54,14 +55,22 @@ class BuyTogether(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
-class FolderViewset(viewsets.ModelViewSet):
-    serializer_class = AddFolderWithProductSerializer
+class FolderViewset(GetSerializerClassMixin, viewsets.ModelViewSet):
+    serializer_class = GetFolderWithProductSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+    filter_backends = [filters_b.DjangoFilterBackend]
 
+    serializer_action_classes = {
+        'create': AddFolderWithProductSerializer,
+        'update':AddFolderWithProductSerializer
+    }
+
+    filterset_fields = ['folder_name']
     def get_queryset(self):
         user = self.request.user
         return BuyerFolderToSaveProduct.objects.filter(buyer__user=user)
+
 
 class GetAllColor(viewsets.ReadOnlyModelViewSet):
     queryset = ProductVariant.objects.all()
