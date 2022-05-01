@@ -136,6 +136,22 @@ class ShopProduct(models.Model):
         orders = OrderItems.objects.filter(product_id=self.id).count()
         return orders
 
+    @property
+    def recent_buyer(self):
+        buyer_itm = OrderItems.objects.filter(product_id=self.id)
+        buyer = buyer_itm.order.order_by('-created_at').first()
+        buyer_name = buyer.customer.user.name
+        buyer_img = buyer.customer.user.profile_photo
+        item_number = buyer.item_count
+        context = {
+            "name":buyer_name,
+            "img":buyer_img,
+            "quantity":item_number
+        }
+        print(context)
+
+        return context
+
 class Live(models.Model):
     user = models.ForeignKey(ShopInfo,on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
