@@ -62,3 +62,15 @@ class FolderViewset(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return BuyerFolderToSaveProduct.objects.filter(buyer__user=user)
+
+class GetAllColor(viewsets.ReadOnlyModelViewSet):
+    queryset = ProductVariant.objects.all()
+    serializer_class = GetColorSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+class GetAllSize(viewsets.ReadOnlyModelViewSet):
+    queryset = ProductSizeStock.objects.all()
+    serializer_class = GetSizeSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]

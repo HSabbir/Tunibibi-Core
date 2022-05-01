@@ -584,7 +584,6 @@ class AddFolderWithProductSerializer(FriendlyErrorMessagesMixin,serializers.Mode
         model = BuyerFolderToSaveProduct
         fields = ['folder_name','buyer','products']
 
-
 class BuyerInfoUpdateSerialiser(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
     class Meta:
         model = BuyerInfo
@@ -599,3 +598,13 @@ class BuyerInfoUpdateSerialiser(FriendlyErrorMessagesMixin,serializers.ModelSeri
             "city": {"required": False},
             "postcode": {"required": False}
         }
+
+class GetColorSerializer(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+    class Meta:
+        model = ProductVariant
+        fields = ['name']
+
+class GetSizeSerializer(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+    class Meta:
+        model = ProductSizeStock
+        fields = ['size']
