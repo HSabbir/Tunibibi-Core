@@ -55,6 +55,15 @@ class BuyTogether(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+class GetAllFolderOfBuyer(viewsets.ReadOnlyModelViewSet):
+    serializer_class = GetAllFolderName
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self):
+        user = self.request.user
+        return BuyerFolderToSaveProduct.objects.filter(buyer=user)
+
 class FolderViewset(GetSerializerClassMixin, viewsets.ModelViewSet):
     serializer_class = GetFolderWithProductSerializer
     permission_classes = [IsAuthenticated]
@@ -69,7 +78,7 @@ class FolderViewset(GetSerializerClassMixin, viewsets.ModelViewSet):
     filterset_fields = ['folder_name']
     def get_queryset(self):
         user = self.request.user
-        return BuyerFolderToSaveProduct.objects.filter(buyer__user=user)
+        return BuyerFolderToSaveProduct.objects.filter(buyer=user)
 
 
 class GetAllColor(viewsets.ReadOnlyModelViewSet):
@@ -83,3 +92,4 @@ class GetAllSize(viewsets.ReadOnlyModelViewSet):
     serializer_class = GetSizeSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+

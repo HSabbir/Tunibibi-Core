@@ -11,5 +11,6 @@ router.register('shop_overview',ShopOverView),
 router.register('buytogether',BuyTogether),
 router.register('buyer_save_folder',FolderViewset,basename='BuyerFolderToSaveProduct')
 
-router.register('all_color',GetAllColor),
+router.register('all_color',GetAllColor)
 router.register('all_size',GetAllSize)
+router.register('get_all_folder',GetAllFolderOfBuyer, basename='BuyerFolderToSaveProduct')

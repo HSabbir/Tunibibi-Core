@@ -617,3 +617,8 @@ class GetFolderWithProductSerializer(FriendlyErrorMessagesMixin,serializers.Mode
     class Meta:
         model = BuyerFolderToSaveProduct
         fields = ['folder_name','products']
+
+class GetAllFolderName(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+    class Meta:
+        model = BuyerFolderToSaveProduct
+        fields = ['id','folder_name']
