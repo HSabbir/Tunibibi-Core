@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import uuid
 from buyer.models import BuyerInfo
 from django.db.models import Sum,Avg
+import json
 
 def generate_filename(instance, filename):
     extension = filename.split('.')[-1]
@@ -131,26 +132,50 @@ class ShopProduct(models.Model):
         rating = Review.objects.filter(product_id=self.id).aggregate(Avg('ratings'))
         return rating['ratings__avg']
 
+    def recent_buyer(self):
+        try:
+            buyer_itm = Orders.objects.filter(order_item__product_id=self.id).order_by('-created_at').first()
+            buyer = BuyerInfo.objects.filter(user=buyer_itm.customer).first()
+            buyer_name = buyer.name
+            buyer_img = buyer.photo.url
+            item_number = OrderItems.objects.filter(order=buyer_itm).first().quantity
+            context = {
+                "name":buyer_name,
+                "img":buyer_img,
+                "quantity":item_number
+            }
+            return context
+        except:
+            return ""
+
+    @property
+    def recent_buyer_name(self):
+        info = self.recent_buyer()
+        try:
+            return info["name"]
+        except:
+            return ""
+
+    @property
+    def recent_buyer_img(self):
+        info = self.recent_buyer()
+        try:
+            return info["img"]
+        except:
+            return ""
+
+    @property
+    def recent_buyer_qty(self):
+        info = self.recent_buyer()
+        try:
+            return info["quantity"]
+        except:
+            return ""
+
     @property
     def order_count(self):
         orders = OrderItems.objects.filter(product_id=self.id).count()
         return orders
-
-    @property
-    def recent_buyer(self):
-        buyer_itm = OrderItems.objects.filter(product_id=self.id)
-        buyer = buyer_itm.order.order_by('-created_at').first()
-        buyer_name = buyer.customer.user.name
-        buyer_img = buyer.customer.user.profile_photo
-        item_number = buyer.item_count
-        context = {
-            "name":buyer_name,
-            "img":buyer_img,
-            "quantity":item_number
-        }
-        print(context)
-
-        return context
 
 class Live(models.Model):
     user = models.ForeignKey(ShopInfo,on_delete=models.CASCADE)
