@@ -2181,3 +2181,22 @@ def updateProfile(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def check_added_to_favourite(request, pk):
+    try:
+        product = BuyerFolderToSaveProduct.objects.filter(buyer=request.user,products__id=pk).exists()
+        # serializer = CheckProductAddedToFavourite("True")
+        # json = JSONRenderer().render(serializer.data)
+        return Response({
+            'code': status.HTTP_200_OK,
+            'data': product
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })

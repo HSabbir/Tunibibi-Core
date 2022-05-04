@@ -113,5 +113,6 @@ urlpatterns = [
     path('buyer/follow',follow),
     path('buyer/place-order',placeOrder),
 
-    path('buyer/updateProfile',updateProfile)
+    path('buyer/updateProfile',updateProfile),
+    path('buyer/check_favourite/<int:pk>',check_added_to_favourite)
 ]

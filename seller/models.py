@@ -372,4 +372,4 @@ class Invitation_seller_text(models.Model):
 class BuyerFolderToSaveProduct(models.Model):
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='folder_creator')
     folder_name = models.CharField(max_length=100)
-    products = models.ManyToManyField(ShopProduct,null=True)
+    products = models.ManyToManyField(ShopProduct,null=True, related_name='favourite_product')

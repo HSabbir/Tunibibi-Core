@@ -4,6 +4,8 @@ import os
 import random
 import string
 
+from rest_framework.renderers import JSONRenderer
+
 from .models import *
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
