@@ -250,9 +250,7 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
     product_image = serializers.SerializerMethodField('get_product_image')
     variant = serializers.SerializerMethodField('get_variant')
 
-    def get_added(self,BuyerFolderToSaveProduct):
-        added = BuyerFolderToSaveProduct.objects.filter(buyer=self.request.user, products_id=self.id).exists()
-        return added
+    added_fav = serializers.SerializerMethodField('get_fav')
 
     def get_category(self, instance):
         return ProductCategorySerializer(instance.category, context={'request': self.context.get('request')}).data
@@ -274,12 +272,16 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
         variants = instance.product_variant.all()
         return ProductVariantReadSerializer(variants, many=True, context={'request': self.context.get('request')}).data
 
+    def get_fav(self,obj):
+        product = BuyerFolderToSaveProduct.objects.filter(buyer=self.context.get('request').user, products__id=obj.id).exists()
+        return product
+
     class Meta:
         model = ShopProduct
         fields = ['id', 'name', 'slug', 'category', 'subcategory', 'wholesale_price', 'product_details', 'weight',
                   'weight_unit', 'weight_unit_id', 'video_url', 'product_origin', 'product_image', 'variant',
                   'product_status', 'model_no', 'country_code','basic_price','ratings','order_count',
-                  'recent_buyer_name','recent_buyer_img','recent_buyer_qty']
+                  'recent_buyer_name','recent_buyer_img','recent_buyer_qty','added_fav']
 
 
 class ShopOverviewSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
