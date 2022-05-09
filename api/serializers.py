@@ -329,12 +329,18 @@ class ReviewSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
         read_only_fields = ('img','name')
 
     def get_name(self,obj):
-        buyer = BuyerInfo.objects.filter(user=obj.user).first()
-        return buyer.name
+        try:
+            buyer = BuyerInfo.objects.filter(user=obj.user).first()
+            return buyer.name
+        except:
+            return ""
 
     def get_image(self,obj):
-        buyer = BuyerInfo.objects.filter(user=obj.user).first()
-        return buyer.photo.url
+        try:
+            buyer = BuyerInfo.objects.filter(user=obj.user).first()
+            return buyer.photo.url
+        except:
+            return ""
 
 
 class ProductStatusUpdateSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
