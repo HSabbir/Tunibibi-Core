@@ -1,3 +1,5 @@
+from rest_framework.fields import DictField, CharField
+
 from buyer.models import BuyerReward, BuyerRechargeHistory
 from seller.models import *
 from customer.models import *
@@ -243,6 +245,7 @@ class DeleteProductImageSerializer(FriendlyErrorMessagesMixin, serializers.Model
 
 
 class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
+    get_coupon = DictField(child=CharField())
     category = serializers.SerializerMethodField('get_category')
     subcategory = serializers.SerializerMethodField('get_subcategory')
     weight_unit = serializers.SerializerMethodField('get_weight_unit')
@@ -251,6 +254,14 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
     variant = serializers.SerializerMethodField('get_variant')
 
     added_fav = serializers.SerializerMethodField('get_fav')
+
+    def get_coupon(self,obj):
+        try:
+            coupon = Coupon.objects.filter(seller=obj.user)
+            coupon = CouponSerializer(coupon,many=True)
+            return coupon
+        except:
+            return None
 
     def get_category(self, instance):
         return ProductCategorySerializer(instance.category, context={'request': self.context.get('request')}).data
@@ -281,7 +292,7 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
         fields = ['id', 'name', 'slug', 'category', 'subcategory', 'wholesale_price', 'product_details', 'weight',
                   'weight_unit', 'weight_unit_id', 'video_url', 'product_origin', 'product_image', 'variant',
                   'product_status', 'model_no', 'country_code','basic_price','ratings','order_count',
-                  'recent_buyer_name','recent_buyer_img','recent_buyer_qty','added_fav']
+                  'recent_buyer_name','recent_buyer_img','recent_buyer_qty','added_fav','get_coupon']
 
 
 class ShopOverviewSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):

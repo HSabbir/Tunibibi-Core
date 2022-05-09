@@ -80,4 +80,5 @@ admin.site.register(BuyTogether )
 admin.site.register(PaymentTransection)
 admin.site.register(PaymentMethods)
 
+admin.site.register(Coupon)
 admin.site.register(BuyerFolderToSaveProduct)

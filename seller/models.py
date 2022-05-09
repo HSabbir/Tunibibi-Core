@@ -4,6 +4,7 @@ import uuid
 from buyer.models import BuyerInfo
 from django.db.models import Sum,Avg
 import json
+from django.core import serializers
 
 def generate_filename(instance, filename):
     extension = filename.split('.')[-1]
@@ -176,6 +177,12 @@ class ShopProduct(models.Model):
     def order_count(self):
         orders = OrderItems.objects.filter(product_id=self.id).count()
         return orders
+
+    @property
+    def get_coupon(self):
+        coupon = Coupon.objects.filter(seller=self.user)
+        return coupon.values()
+
 
 class Live(models.Model):
     user = models.ForeignKey(ShopInfo,on_delete=models.CASCADE)
