@@ -14,11 +14,11 @@ class ProductFilter(filters_b.FilterSet):
     color = filters_b.CharFilter(field_name="product_variant__color",lookup_expr='iexact')
     size = filters_b.CharFilter(field_name="product_variant__size_stock_variant__size",lookup_expr='iexact')
     review = filters_b.NumberFilter(field_name="review__ratings",lookup_expr='iexact')
-
+    country = filters_b.CharFilter(field_name="country_code",lookup_expr='iexact')
     class Meta:
         model = ShopProduct
         fields = ['category', 'color', 'size','review','min_price',
-                  'max_price']
+                  'max_price','country']
 
 class ProductViewset(viewsets.ReadOnlyModelViewSet):
     queryset = ShopProduct.objects.all()

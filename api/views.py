@@ -1758,7 +1758,7 @@ def getReview(request,pk=None):
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def createReview(request,pk=None):
+def createReview(request):
     try:
         payload = request.data
         request_serializer = ReviewSerializer(data=payload)
@@ -2182,19 +2182,28 @@ def updateProfile(request):
             "message": str(e)
         })
 
-@api_view(['GET'])
+
+@api_view(['PATCH'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 @buyer_only
-def check_added_to_favourite(request, pk):
+def add_product_existing_folder(request,pk):
     try:
-        product = BuyerFolderToSaveProduct.objects.filter(buyer=request.user,products__id=pk).exists()
-        # serializer = CheckProductAddedToFavourite("True")
-        # json = JSONRenderer().render(serializer.data)
-        return Response({
-            'code': status.HTTP_200_OK,
-            'data': product
-        })
+        buyer = request.user
+        data = request.data
+        folder = BuyerFolderToSaveProduct.objects.filter(buyer=buyer).filter(id=pk).first()
+        print(folder)
+
+        if 'products' in data:
+            product = ShopProduct.objects.filter(id=data["products"]).first()
+            folder.products.add(product)
+
+            folder.save()
+
+            return Response({
+                'code': status.HTTP_200_OK,
+                'msg': 'Added to folder'
+            })
     except Exception as e:
         return Response({
             "code": status.HTTP_400_BAD_REQUEST,

@@ -187,7 +187,7 @@ class Live(models.Model):
 
 class Review(models.Model):
     product = models.ForeignKey(ShopProduct,on_delete=models.CASCADE, related_name='review', null=True, blank=True)
-    user = models.ForeignKey(BuyerInfo,on_delete=models.CASCADE, related_name='review_user', null=True, blank=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE, related_name='review_user', null=True, blank=True)
     ratings = models.IntegerField()
     description = models.TextField()
 

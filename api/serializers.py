@@ -319,8 +319,8 @@ class LiveSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
         fields = '__all__'
 
 class ReviewSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
-    img = serializers.SerializerMethodField('get_image')
     name = serializers.SerializerMethodField('get_name')
+    img = serializers.SerializerMethodField('get_image')
 
 
     class Meta:
@@ -328,11 +328,13 @@ class ReviewSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
         fields = ['product','user','ratings','description','img','name']
         read_only_fields = ('img','name')
 
-    def get_image(self,Review):
-        return Review.user.photo
+    def get_name(self,obj):
+        buyer = BuyerInfo.objects.filter(user=obj.user).first()
+        return buyer.name
 
-    def get_name(self,Review):
-        return Review.user.name
+    def get_image(self,obj):
+        buyer = BuyerInfo.objects.filter(user=obj.user).first()
+        return buyer.photo.url
 
 
 class ProductStatusUpdateSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
