@@ -2,11 +2,12 @@ from ..importFile import *
 
 from django_filters import rest_framework as filters_b
 from .mixins import GetSerializerClassMixin
-
+from ..decorators import  buyer_only
 from rest_framework import viewsets
 from rest_framework import filters
 
 class ProductFilter(filters_b.FilterSet):
+    user = filters_b.NumberFilter(field_name="user__id", lookup_expr="iexact")
     min_price = filters_b.NumberFilter(field_name="basic_price", lookup_expr='gte')
     max_price = filters_b.NumberFilter(field_name="basic_price", lookup_expr='lte')
 
@@ -17,7 +18,7 @@ class ProductFilter(filters_b.FilterSet):
     origin = filters_b.CharFilter(field_name="product_origin",lookup_expr='iexact')
     class Meta:
         model = ShopProduct
-        fields = ['category', 'color', 'size','review','min_price',
+        fields = ['user','category', 'color', 'size','review','min_price',
                   'max_price','origin']
 
 class ProductViewset(viewsets.ReadOnlyModelViewSet):
