@@ -30,7 +30,9 @@ admin.site.register(ProductCategory, ProductCategoryAdmin)
 admin.site.register(ProductSubcategory, ProductSubcategoryAdmin)
 
 
-admin.site.register(ShopProduct)
+@admin.register(ShopProduct)
+class ShopProductModelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
 
 @admin.register(ShopInfo)
 class ShopInfoModelAdmin(admin.ModelAdmin):

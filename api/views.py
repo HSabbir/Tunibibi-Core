@@ -2229,3 +2229,133 @@ def get_cart(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def add_to_cart(request):
+    data = request.data
+    user = request.user
+    try:
+        cart = Cart.objects.filter(user=user).first()
+        print(cart)
+        try:
+            product = ShopProduct.objects.get(id=data["product"])
+            cart_shop = CartShop.objects.filter(shop__user=product.user).first()
+            cart_item = CartItem.objects.create(cart_shop=cart_shop,product=product,quantity=data["quantity"])
+            cart_item.save()
+            print('y')
+            return Response({
+                'code': status.HTTP_200_OK,
+                'msg': 'added item to cart',
+            })
+        except:
+            product = ShopProduct.objects.get(id=data["product"])
+            shop = ShopInfo.objects.get(user=product.user)
+            cart_shop = CartShop.objects.create(cart=cart,shop=shop)
+            cart_item = CartItem.objects.create(cart_shop=cart_shop, product=product, quantity=data["quantity"])
+            cart_item.save()
+            print('y2')
+            return Response({
+                'code': status.HTTP_200_OK,
+                'msg': 'added item to cart',
+            })
+    except:
+        cart = Cart.objects.create(user=user)
+        product = ShopProduct.objects.get(id=data["product"])
+        shop = ShopInfo.objects.get(user=product.user)
+        cart_shop = CartShop.objects.create(cart=cart, shop=shop)
+        cart_item = CartItem.objects.create(cart_shop=cart_shop, product=product, quantity=data["quantity"])
+        cart_item.save()
+        print('y3')
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'added item to cart',
+        })
+
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def update_cart(request):
+    data = request.data
+    user = request.user
+    try:
+        cart_item = CartItem.objects.filter(cart_shop__cart__user=user).filter(product__id=data["product"]).first()
+        cart_item.quantity = data["quantity"]
+        cart_item.save()
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'updated cart',
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+@api_view(['DELETE'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def remove_cart_item(request):
+    data = request.data
+    user = request.user
+    try:
+        cart_item = CartItem.objects.filter(cart_shop__cart__user=user).filter(product__id=data["product"]).first()
+        shop = cart_item.cart_shop
+        cart_item.delete()
+        count_shop_item = CartItem.objects.filter(cart_shop=shop).count()
+        if count_shop_item < 1 :
+            shop.delete()
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'deleted cart item',
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+@api_view(['DELETE'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def remove_cart_item_by_store(request):
+    data = request.data
+    user = request.user
+    try:
+        shop = CartShop.objects.filter(cart__user=user).filter(shop__user__id=data["shop_id"])
+        shop.delete()
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'deleted all cart item from shop',
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+@api_view(['DELETE'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def remove_all_item(request):
+    data = request.data
+    user = request.user
+    try:
+        cart = Cart.objects.filter(user=user).first()
+        cart.delete()
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'deleted all cart item',
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })

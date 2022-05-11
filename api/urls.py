@@ -116,6 +116,11 @@ urlpatterns = [
     path('buyer/updateProfile',updateProfile),
     path('buyer/add_product_existing_folder/<int:pk>',add_product_existing_folder),
 
-    path('buyer/get_cart',get_cart)
+    path('buyer/get_cart',get_cart),
+    path('buyer/add_to_cart',add_to_cart),
+    path('buyer/update_cart',update_cart),
+    path('buyer/remove_cart_item',remove_cart_item),
+    path('buyer/remove_cart_item_by_store',remove_cart_item_by_store),
+    path('buyer/remove_all_item',remove_all_item)
 
 ]
