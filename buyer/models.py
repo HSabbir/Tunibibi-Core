@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.apps import apps
+import seller.models
 
 class BuyerInfo(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='buyer_auth', null=True, blank=True)
@@ -40,3 +41,16 @@ class BuyerRechargeHistory(models.Model):
     country = models.CharField(max_length=400, null=True)
     operator = models.CharField(max_length=400, null=True)
     amount = models.CharField(max_length=400, null=True)
+
+class Cart(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    active = models.BooleanField(default=True)
+
+class CartShop(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    shop = models.ForeignKey('seller.ShopInfo',related_name='cart_shop', on_delete=models.CASCADE)
+
+class CartItem(models.Model):
+    cart_shop = models.ForeignKey(CartShop, related_name='cart_item', on_delete=models.CASCADE)
+    product = models.ForeignKey('seller.ShopProduct', related_name='cart_item', on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1,null=True, blank=True)

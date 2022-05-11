@@ -82,3 +82,4 @@ admin.site.register(PaymentMethods)
 
 admin.site.register(Coupon)
 admin.site.register(BuyerFolderToSaveProduct)
+admin.site.register(ProductImages)

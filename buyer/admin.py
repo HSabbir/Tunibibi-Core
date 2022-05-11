@@ -10,3 +10,7 @@ class BuyerInfoModelAdmin(admin.ModelAdmin):
 @admin.register(BuyerReward)
 class RewardModelAdmin(admin.ModelAdmin):
     list_display = ('user', 'point', 'rank')
+
+admin.site.register(Cart)
+admin.site.register(CartItem)
+admin.site.register(CartShop)

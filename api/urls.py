@@ -114,5 +114,8 @@ urlpatterns = [
     path('buyer/place-order',placeOrder),
 
     path('buyer/updateProfile',updateProfile),
-    path('buyer/add_product_existing_folder/<int:pk>',add_product_existing_folder)
+    path('buyer/add_product_existing_folder/<int:pk>',add_product_existing_folder),
+
+    path('buyer/get_cart',get_cart)
+
 ]

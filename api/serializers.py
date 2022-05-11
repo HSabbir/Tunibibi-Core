@@ -1,6 +1,6 @@
 from rest_framework.fields import DictField, CharField
 
-from buyer.models import BuyerReward, BuyerRechargeHistory
+from buyer.models import BuyerReward, BuyerRechargeHistory, Cart, CartItem, CartShop
 from seller.models import *
 from customer.models import *
 from django.contrib.auth.models import User
@@ -647,3 +647,48 @@ class GetAllFolderName(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
     class Meta:
         model = BuyerFolderToSaveProduct
         fields = ['id','folder_name']
+
+class CartItems(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+    product_image = serializers.SerializerMethodField('get_photo')
+    product_price = serializers.SerializerMethodField('get_price')
+    color = serializers.SerializerMethodField('get_color')
+    product_name = serializers.SerializerMethodField('get_name')
+
+    def get_name(self,obj):
+        return obj.product.name
+
+    def get_color(self,obj):
+        try:
+            color =  ProductVariant.objects.filter(product=obj.product).first()
+            return color.name
+        except:
+            return ""
+
+    def get_price(self,obj):
+        return obj.product.basic_price
+
+    def get_photo(self,obj):
+        try:
+            images = ProductImages.objects.filter(product=obj.product).first()
+            return images.product_image.url
+        except:
+            return ""
+
+    class Meta:
+        model = CartItem
+        fields = ['id','quantity','product_name','product_price','color','product_image']
+
+class GetCartItem(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+    cart_item = CartItems(many=True)
+    shop_name = serializers.SerializerMethodField('get_name')
+    shop_photo = serializers.SerializerMethodField('get_logo')
+
+    def get_name(self,obj):
+        return obj.shop.business_name
+
+    def get_logo(self,obj):
+        return obj.shop.business_logo.url
+
+    class Meta:
+        model = CartShop
+        fields = ['cart_item','shop_name','shop_photo']

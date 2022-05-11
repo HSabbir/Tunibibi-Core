@@ -2209,3 +2209,23 @@ def add_product_existing_folder(request,pk):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def get_cart(request):
+    try:
+        cart = CartShop.objects.filter(cart__user=request.user)
+        serializers = GetCartItem(cart, many=True)
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'Your Status is',
+            'serializers': serializers.data
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
