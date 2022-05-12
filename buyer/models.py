@@ -54,3 +54,8 @@ class CartItem(models.Model):
     cart_shop = models.ForeignKey(CartShop, related_name='cart_item', on_delete=models.CASCADE)
     product = models.ForeignKey('seller.ShopProduct', related_name='cart_item', on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1,null=True, blank=True)
+
+class BankRecipt(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='bank_user')
+    transection_id = models.CharField(max_length=20)
+    bank_reciept = models.ImageField(upload_to='bank_reciept/')

@@ -121,6 +121,7 @@ urlpatterns = [
     path('buyer/update_cart',update_cart),
     path('buyer/remove_cart_item',remove_cart_item),
     path('buyer/remove_cart_item_by_store',remove_cart_item_by_store),
-    path('buyer/remove_all_item',remove_all_item)
+    path('buyer/remove_all_item',remove_all_item),
 
+    path('buyer/upload_bank_reciept',upload_bank_reciept)
 ]

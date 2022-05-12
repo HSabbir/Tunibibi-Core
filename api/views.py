@@ -1,3 +1,6 @@
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import MultiPartParser
+
 from .importFile import  *
 
 @api_view(['POST'])
@@ -2353,6 +2356,56 @@ def remove_all_item(request):
         return Response({
             'code': status.HTTP_200_OK,
             'msg': 'deleted all cart item',
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def update_cart(request):
+    data = request.data
+    user = request.user
+    try:
+        cart_item = CartItem.objects.filter(cart_shop__cart__user=user).filter(product__id=data["product"]).first()
+        cart_item.quantity = data["quantity"]
+        cart_item.save()
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'updated cart',
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@parser_classes([ MultiPartParser])
+@buyer_only
+def upload_bank_reciept(request):
+    data = request.data
+    print(data)
+    user = request.user
+    try:
+        transection_id = ''.join(random.choices(
+            string.ascii_uppercase + string.digits, k=12))
+        transection_id = "#TBANK" + str(transection_id)
+        data["transection_id"] = transection_id
+        data["user"] = user.id
+        serializer = UploadBankReciept(data=data, context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'updated cart',
+            'transection_id':transection_id
         })
     except Exception as e:
         return Response({

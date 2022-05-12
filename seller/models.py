@@ -289,10 +289,9 @@ class PaymentMethods(models.Model):
     method_details = models.TextField(null=True)
 
 class PaymentTransection(models.Model):
-    order = models.ForeignKey(Orders,on_delete=models.CASCADE,related_name='transection_order')
+    order = models.ForeignKey(Orders,on_delete=models.CASCADE,related_name='transection_order',blank=True,null=True)
     payment_method = models.ForeignKey(PaymentMethods,on_delete=models.CASCADE,related_name='transection_method')
-    transection_id = models.CharField(max_length=200)
-
+    transection_id = models.CharField(max_length=200,null=True,blank=True)
 
 
 class ExtraCharge(models.Model):
@@ -380,3 +379,4 @@ class BuyerFolderToSaveProduct(models.Model):
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='folder_creator')
     folder_name = models.CharField(max_length=100)
     products = models.ManyToManyField(ShopProduct,null=True, related_name='favourite_product')
+

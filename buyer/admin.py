@@ -14,3 +14,4 @@ class RewardModelAdmin(admin.ModelAdmin):
 admin.site.register(Cart)
 admin.site.register(CartItem)
 admin.site.register(CartShop)
+admin.site.register(BankRecipt)

@@ -1,6 +1,6 @@
 from rest_framework.fields import DictField, CharField
 
-from buyer.models import BuyerReward, BuyerRechargeHistory, Cart, CartItem, CartShop
+from buyer.models import BuyerReward, BuyerRechargeHistory, Cart, CartItem, CartShop, BankRecipt
 from seller.models import *
 from customer.models import *
 from django.contrib.auth.models import User
@@ -692,3 +692,11 @@ class GetCartItem(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
     class Meta:
         model = CartShop
         fields = ['cart_item','shop_name','shop_photo']
+
+
+class UploadBankReciept(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+    bank_reciept = serializers.ImageField(
+        max_length=None)
+    class Meta:
+        model = BankRecipt
+        fields = '__all__'
