@@ -4,6 +4,7 @@ import os
 import random
 import string
 
+import copy
 from rest_framework.renderers import JSONRenderer
 from django.core import serializers
 

@@ -1,3 +1,5 @@
+import copy
+
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import MultiPartParser
 
@@ -1122,6 +1124,7 @@ def createCustomer(request):
 def placeOrder(request):
     try:
         payload = request.data
+        data = copy.deepcopy(payload)
         buy_together_obj = None
         place_order_serializer = PlaceOrderSerializer(data=payload)
         if place_order_serializer.is_valid():
@@ -1157,8 +1160,8 @@ def placeOrder(request):
 
             grand_total = order_instance.delivery_fee - order_instance.coupon_discount
             item_total = 0
-
-            for product in request.data['products']:
+            print(data)
+            for product in data['products']:
                 product_instance = ShopProduct.objects.get(id=product['product_id'])
                 product_instance.total_sale += product["quantity"]
 

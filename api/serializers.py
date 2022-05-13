@@ -252,6 +252,14 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
     weight_unit_id = serializers.SerializerMethodField('get_weight_unit_id')
     product_image = serializers.SerializerMethodField('get_product_image')
     variant = serializers.SerializerMethodField('get_variant')
+    seller_id = serializers.SerializerMethodField('get_seller')
+    shop_id = serializers.SerializerMethodField('get_shop')
+
+    def get_seller(self,obj):
+        return obj.user.id
+
+    def get_shop(self,obj):
+        return obj.user.seller_auth.id
 
     added_fav = serializers.SerializerMethodField('get_fav')
 
@@ -289,7 +297,7 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
 
     class Meta:
         model = ShopProduct
-        fields = ['id', 'name', 'slug', 'category', 'subcategory', 'wholesale_price', 'product_details', 'weight',
+        fields = ['id', 'seller_id','shop_id', 'name', 'slug', 'category', 'subcategory', 'wholesale_price', 'product_details', 'weight',
                   'weight_unit', 'weight_unit_id', 'video_url', 'product_origin', 'product_image', 'variant',
                   'product_status', 'model_no', 'country_code','basic_price','ratings','order_count',
                   'recent_buyer_name','recent_buyer_img','recent_buyer_qty','added_fav','get_coupon']
@@ -600,7 +608,12 @@ class PointSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
 
 
 class BuyTogetherReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
-    order_item = OrderItemSerializer(source='buy_together_item', many=True)
+    order_item = serializers.SerializerMethodField('get_buytogether')
+
+    def get_buytogether(self,obj):
+        order_item = OrderItems.objects.filter(buy_together=obj).first()
+        return OrderItemSerializer(order_item, context={'request': self.context.get('request')}).data
+
     class Meta:
         model = BuyTogether
         fields = '__all__'
