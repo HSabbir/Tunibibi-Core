@@ -1,6 +1,6 @@
 from rest_framework.fields import DictField, CharField
 
-from buyer.models import BuyerReward, BuyerRechargeHistory, Cart, CartItem, CartShop, BankRecipt
+from buyer.models import BuyerReward, BuyerRechargeHistory, Cart, CartItem, CartShop, BankRecipt, BuyerSgippingAddress
 from seller.models import *
 from customer.models import *
 from django.contrib.auth.models import User
@@ -420,10 +420,11 @@ class CustomerInfoSaveSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
 
 class PlaceOrderSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
     products = serializers.JSONField(required=True)
+    token_discount = serializers.FloatField(required=False)
 
     class Meta:
         model = Orders
-        fields = ['products', 'delivery_fee', 'coupon_code', 'coupon_discount', 'payment_method']
+        fields = ['products', 'delivery_fee', 'coupon_code', 'coupon_discount', 'token_discount', 'payment_method']
 
 
 class OrderItemSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
@@ -664,18 +665,10 @@ class GetAllFolderName(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
 class CartItems(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
     product_image = serializers.SerializerMethodField('get_photo')
     product_price = serializers.SerializerMethodField('get_price')
-    color = serializers.SerializerMethodField('get_color')
     product_name = serializers.SerializerMethodField('get_name')
 
     def get_name(self,obj):
         return obj.product.name
-
-    def get_color(self,obj):
-        try:
-            color =  ProductVariant.objects.filter(product=obj.product).first()
-            return color.name
-        except:
-            return ""
 
     def get_price(self,obj):
         return obj.product.basic_price
@@ -689,7 +682,7 @@ class CartItems(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
 
     class Meta:
         model = CartItem
-        fields = ['id','product','quantity','product_name','product_price','color','product_image']
+        fields = ['id','product','quantity','product_name','product_price', 'color','size','product_image']
 
 class GetCartItem(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
     cart_item = CartItems(many=True)
@@ -713,3 +706,18 @@ class UploadBankReciept(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
     class Meta:
         model = BankRecipt
         fields = '__all__'
+
+class BuyerShippingAddress(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+
+    class Meta:
+        model = BuyerSgippingAddress
+        fields = ['id','buyer','name','country','mobile_number','street_address','apt_suite_unit','city',
+                  'zip_code','default']
+        read_only_fields = ['id']
+
+class BuyerShippingAddressUpdate(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
+
+    class Meta:
+        model = BuyerSgippingAddress
+        fields = ['name','country','mobile_number','street_address','apt_suite_unit','city',
+                  'zip_code','default']

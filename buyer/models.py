@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.apps import apps
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
+
 import seller.models
 
 class BuyerInfo(models.Model):
@@ -19,6 +22,20 @@ class BuyerInfo(models.Model):
 
     def __str__(self):
         return str(self.user)
+
+class BuyerSgippingAddress(models.Model):
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='address_owner', null=True, blank=True)
+    name = models.CharField(max_length=200, null=True, blank=True)
+    country = models.CharField(max_length=200, null=True, blank=True)
+    mobile_number = models.CharField(max_length=20)
+    street_address = models.TextField(null=True,blank=True)
+    apt_suite_unit = models.TextField(null=True,blank=True)
+    city = models.TextField(null=True)
+    zip_code = models.TextField(null=True)
+    default = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 class BuyerReward(models.Model):
     user = models.ForeignKey(BuyerInfo, on_delete=models.CASCADE, related_name='buyer_reward_board', null=True, blank=True)
@@ -53,6 +70,8 @@ class CartShop(models.Model):
 class CartItem(models.Model):
     cart_shop = models.ForeignKey(CartShop, related_name='cart_item', on_delete=models.CASCADE)
     product = models.ForeignKey('seller.ShopProduct', related_name='cart_item', on_delete=models.CASCADE)
+    size = models.CharField(max_length=5)
+    color = models.CharField(max_length=400)
     quantity = models.IntegerField(default=1,null=True, blank=True)
 
 class BankRecipt(models.Model):

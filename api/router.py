@@ -14,3 +14,4 @@ router.register('buyer_save_folder',FolderViewset,basename='BuyerFolderToSavePro
 router.register('all_color',GetAllColor)
 router.register('all_size',GetAllSize)
 router.register('get_all_folder',GetAllFolderOfBuyer, basename='BuyerFolderToSaveProduct')
+router.register('shipping_address',ShippingAddressViewsets)

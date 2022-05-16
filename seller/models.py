@@ -240,6 +240,7 @@ class Orders(models.Model):
     delivery_fee = models.FloatField(default=0)
     coupon_code = models.CharField(max_length=200, null=True, blank=True)
     coupon_discount = models.FloatField(default=0)
+    token_discount = models.FloatField(default=0)
     grand_total = models.FloatField(default=0)
     payment_method = models.CharField(max_length=200)
     order_status = models.CharField(max_length=200, default="Pending")

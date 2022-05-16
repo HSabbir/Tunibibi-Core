@@ -3,11 +3,11 @@ from ..importFile import *
 from django_filters import rest_framework as filters_b
 from .mixins import GetSerializerClassMixin
 from ..decorators import  buyer_only
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework import filters
 
 class ProductFilter(filters_b.FilterSet):
-    user = filters_b.NumberFilter(field_name="user__id", lookup_expr="iexact")
+    seller_id = filters_b.NumberFilter(field_name="user__id", lookup_expr="iexact")
     min_price = filters_b.NumberFilter(field_name="basic_price", lookup_expr='gte')
     max_price = filters_b.NumberFilter(field_name="basic_price", lookup_expr='lte')
 
@@ -18,7 +18,7 @@ class ProductFilter(filters_b.FilterSet):
     origin = filters_b.CharFilter(field_name="product_origin",lookup_expr='iexact')
     class Meta:
         model = ShopProduct
-        fields = ['user','category', 'color', 'size','review','min_price',
+        fields = ['seller_id','category', 'color', 'size','review','min_price',
                   'max_price','origin']
 
 class ProductViewset(viewsets.ReadOnlyModelViewSet):
@@ -93,4 +93,15 @@ class GetAllSize(viewsets.ReadOnlyModelViewSet):
     serializer_class = GetSizeSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+
+class ShippingAddressViewsets(mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,viewsets.GenericViewSet):
+    queryset = BuyerSgippingAddress.objects.all()
+    serializer_class = BuyerShippingAddress
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self):
+        user = self.request.user
+        return BuyerSgippingAddress.objects.filter(buyer=user)
 

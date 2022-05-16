@@ -1150,6 +1150,7 @@ def placeOrder(request):
                 delivery_fee=payload['delivery_fee'],
                 coupon_code=payload['coupon_code'],
                 coupon_discount=payload['coupon_discount'],
+                token_discount= payload['token_discount'],
                 payment_method=payload['payment_method']
             )
 
@@ -1200,8 +1201,10 @@ def placeOrder(request):
 
             product_instance.save()
 
+
             grand_total += item_total
             order_instance.item_total = item_total
+            grand_total = grand_total - order_instance.token_discount
             order_instance.grand_total = grand_total
             order_instance.save()
 
@@ -2156,37 +2159,37 @@ def follow(request):
             "message": str(e)
         })
 
-@api_view(['PATCH'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-@buyer_only
-def updateProfile(request):
-    try:
-        data = request.data
-        data_serializer = BuyerInfoUpdateSerialiser(data=data)
-
-        if data_serializer.is_valid:
-            obj = BuyerInfo.objects.filter(id=data['id']).first()
-
-            obj.name = data.get("name", obj.name)
-            obj.country = data.get("country", obj.country)
-            obj.mobile_number = data.get("mobile_number", obj.mobile_number)
-            obj.address = data.get("address", obj.address)
-            obj.photo = data.get("photo", obj.photo)
-            obj.city = data.get("city", obj.city)
-            obj.postcode = data.get("postcode", obj.postcode)
-
-            obj.save()
-
-            return Response({
-                'code': status.HTTP_200_OK,
-                'msg': 'Updated Info'
-            })
-    except Exception as e:
-        return Response({
-            "code": status.HTTP_400_BAD_REQUEST,
-            "message": str(e)
-        })
+# @api_view(['PATCH'])
+# @authentication_classes([JWTAuthentication])
+# @permission_classes([IsAuthenticated])
+# @buyer_only
+# def updateProfile(request):
+#     try:
+#         data = request.data
+#         data_serializer = BuyerInfoUpdateSerialiser(data=data)
+#
+#         if data_serializer.is_valid:
+#             obj = BuyerInfo.objects.filter(id=data['id']).first()
+#
+#             obj.name = data.get("name", obj.name)
+#             obj.country = data.get("country", obj.country)
+#             obj.mobile_number = data.get("mobile_number", obj.mobile_number)
+#             obj.address = data.get("address", obj.address)
+#             obj.photo = data.get("photo", obj.photo)
+#             obj.city = data.get("city", obj.city)
+#             obj.postcode = data.get("postcode", obj.postcode)
+#
+#             obj.save()
+#
+#             return Response({
+#                 'code': status.HTTP_200_OK,
+#                 'msg': 'Updated Info'
+#             })
+#     except Exception as e:
+#         return Response({
+#             "code": status.HTTP_400_BAD_REQUEST,
+#             "message": str(e)
+#         })
 
 
 @api_view(['PATCH'])
@@ -2249,9 +2252,9 @@ def add_to_cart(request):
         try:
             product = ShopProduct.objects.get(id=data["product"])
             cart_shop = CartShop.objects.filter(shop__user=product.user).first()
-            cart_item = CartItem.objects.create(cart_shop=cart_shop,product=product,quantity=data["quantity"])
+            cart_item = CartItem.objects.create(cart_shop=cart_shop,product=product,quantity=data["quantity"],
+                                                size=data["size"],color=data["color"])
             cart_item.save()
-            print('y')
             return Response({
                 'code': status.HTTP_200_OK,
                 'msg': 'added item to cart',
@@ -2260,9 +2263,9 @@ def add_to_cart(request):
             product = ShopProduct.objects.get(id=data["product"])
             shop = ShopInfo.objects.get(user=product.user)
             cart_shop = CartShop.objects.create(cart=cart,shop=shop)
-            cart_item = CartItem.objects.create(cart_shop=cart_shop, product=product, quantity=data["quantity"])
+            cart_item = CartItem.objects.create(cart_shop=cart_shop, product=product, quantity=data["quantity"],
+                                                size=data["size"],color=data["color"])
             cart_item.save()
-            print('y2')
             return Response({
                 'code': status.HTTP_200_OK,
                 'msg': 'added item to cart',
@@ -2272,9 +2275,9 @@ def add_to_cart(request):
         product = ShopProduct.objects.get(id=data["product"])
         shop = ShopInfo.objects.get(user=product.user)
         cart_shop = CartShop.objects.create(cart=cart, shop=shop)
-        cart_item = CartItem.objects.create(cart_shop=cart_shop, product=product, quantity=data["quantity"])
+        cart_item = CartItem.objects.create(cart_shop=cart_shop, product=product, quantity=data["quantity"],
+                                            size=data["size"],color=data["color"])
         cart_item.save()
-        print('y3')
         return Response({
             'code': status.HTTP_200_OK,
             'msg': 'added item to cart',
@@ -2407,8 +2410,107 @@ def upload_bank_reciept(request):
             serializer.save()
         return Response({
             'code': status.HTTP_200_OK,
-            'msg': 'updated cart',
+            'msg': 'uploaded reciept',
             'transection_id':transection_id
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def add_shipping_address(request):
+    try:
+        buyer = request.user
+        data = request.data
+        serializer = BuyerShippingAddress(data=data)
+        if serializer.is_valid():
+            try:
+                obj = BuyerSgippingAddress.objects.filter(buyer=buyer).filter(default=True).first()
+                print(obj)
+                obj.default = False
+                obj.save()
+            except:
+                print('Y')
+            serializer.save()
+            return Response({
+                "code": 200,
+                "message": "Added Shipping Address",
+                "data":serializer.data
+            })
+
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+@api_view(['PUT'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def update_shipping_address(request,pk):
+
+    try:
+        data = request.data
+        data_serializer = BuyerShippingAddressUpdate(data=data)
+
+        if data_serializer.is_valid():
+            obj = BuyerSgippingAddress.objects.filter(id=pk).first()
+
+            obj.name = data.get("name", obj.name)
+            obj.country = data.get("country", obj.country)
+            obj.mobile_number = data.get("mobile_number", obj.mobile_number)
+            obj.street_address = data.get("street_address", obj.street_address)
+            obj.apt_suite_unit = data.get("apt_suite_unit", obj.apt_suite_unit)
+            obj.city = data.get("city", obj.city)
+            obj.zip_code = data.get("zip_code", obj.zip_code)
+
+            if data["default"] == True :
+                try:
+                    previous_default = BuyerSgippingAddress.objects.filter(buyer=request.user).filter(default=True).first()
+                    previous_default.default = False
+                    previous_default.save()
+                except:
+                    pass
+                obj.default = data.get("default", obj.default)
+                obj.save()
+
+                return Response({
+                    'code': status.HTTP_200_OK,
+                    'msg': 'Updated Info',
+                    'data':data_serializer.data
+                })
+
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+@api_view(['PATCH'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def change_default_shipping_address(request,pk):
+    try:
+        buyer = request.user
+        current_default = BuyerSgippingAddress.objects.filter(buyer=buyer,default=True).first()
+        current_default.default = False
+        current_default.save()
+
+        update_obj = BuyerSgippingAddress.objects.get(id=pk)
+        update_obj.default = True
+        update_obj.save()
+
+        return Response({
+            "code": 200,
+            "message": "Updated default address"
         })
     except Exception as e:
         return Response({
