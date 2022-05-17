@@ -252,10 +252,10 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
     weight_unit_id = serializers.SerializerMethodField('get_weight_unit_id')
     product_image = serializers.SerializerMethodField('get_product_image')
     variant = serializers.SerializerMethodField('get_variant')
-    seller_id = serializers.SerializerMethodField('get_seller')
+    seller_id = serializers.SerializerMethodField('get_seller_id')
     shop_id = serializers.SerializerMethodField('get_shop')
 
-    def get_seller(self,obj):
+    def get_seller_id(self,obj):
         return obj.user.id
 
     def get_shop(self,obj):
@@ -270,6 +270,15 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
             return coupon
         except:
             return None
+
+    def get_seller(self,obj):
+        shop = ShopInfo.objects.filter(user=obj.user)
+        print(shop)
+        context = {
+            "name": shop.business_name,
+            "photo": shop.business_logo
+        }
+        return context
 
     def get_category(self, instance):
         return ProductCategorySerializer(instance.category, context={'request': self.context.get('request')}).data
@@ -297,7 +306,7 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
 
     class Meta:
         model = ShopProduct
-        fields = ['id', 'seller_id','shop_id', 'name', 'slug', 'category', 'subcategory', 'wholesale_price', 'product_details', 'weight',
+        fields = ['id', 'seller_id','seller_name','seller_photo','shop_id', 'name', 'slug', 'category', 'subcategory', 'wholesale_price', 'product_details', 'weight',
                   'weight_unit', 'weight_unit_id', 'video_url', 'product_origin', 'product_image', 'variant',
                   'product_status', 'model_no', 'country_code','basic_price','ratings','order_count',
                   'recent_buyer_name','recent_buyer_img','recent_buyer_qty','added_fav','get_coupon']

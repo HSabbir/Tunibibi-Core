@@ -49,6 +49,9 @@ class ShopOverView(viewsets.ReadOnlyModelViewSet):
     serializer_class = ShopOverviewSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+    filter_backends = [filters_b.DjangoFilterBackend]
+    filterset_fields = ['shop__id']
+
 
 class BuyTogether(viewsets.ModelViewSet):
     queryset = BuyTogether.objects.all()

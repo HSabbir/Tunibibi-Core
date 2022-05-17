@@ -180,8 +180,24 @@ class ShopProduct(models.Model):
 
     @property
     def get_coupon(self):
-        coupon = Coupon.objects.filter(seller=self.user)
-        return coupon.values()
+        try:
+            coupon = Coupon.objects.filter(seller=self.user)
+            return coupon.values()
+        except:
+            return None
+
+    def get_seller(self):
+        shop = ShopInfo.objects.filter(user=self.user)
+        print(shop)
+        return shop
+
+    @property
+    def seller_name(self):
+        return self.get_seller().values()[0]["business_name"]
+
+    @property
+    def seller_photo(self):
+        return self.get_seller().values()[0]["business_logo"]
 
 
 class Live(models.Model):
