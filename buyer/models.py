@@ -72,6 +72,7 @@ class CartItem(models.Model):
     product = models.ForeignKey('seller.ShopProduct', related_name='cart_item', on_delete=models.CASCADE)
     size = models.CharField(max_length=5)
     color = models.CharField(max_length=400)
+    color_name = models.CharField(max_length=40)
     quantity = models.IntegerField(default=1,null=True, blank=True)
 
 class BankRecipt(models.Model):

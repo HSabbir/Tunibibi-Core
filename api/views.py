@@ -2253,22 +2253,25 @@ def add_to_cart(request):
             product = ShopProduct.objects.get(id=data["product"])
             cart_shop = CartShop.objects.filter(shop__user=product.user).first()
             cart_item = CartItem.objects.create(cart_shop=cart_shop,product=product,quantity=data["quantity"],
-                                                size=data["size"],color=data["color"])
+                                                size=data["size"],color=data["color"],color_name=data["color_name"])
             cart_item.save()
+            cart_shop.save()
+            cart.save()
             return Response({
                 'code': status.HTTP_200_OK,
-                'msg': 'added item to cart',
+                'msg': 'added item to cart 1',
             })
         except:
             product = ShopProduct.objects.get(id=data["product"])
             shop = ShopInfo.objects.get(user=product.user)
             cart_shop = CartShop.objects.create(cart=cart,shop=shop)
             cart_item = CartItem.objects.create(cart_shop=cart_shop, product=product, quantity=data["quantity"],
-                                                size=data["size"],color=data["color"])
+                                                size=data["size"],color=data["color"],color_name=data["color_name"])
             cart_item.save()
+            cart_shop.save()
             return Response({
                 'code': status.HTTP_200_OK,
-                'msg': 'added item to cart',
+                'msg': 'added item to cart 2',
             })
     except:
         cart = Cart.objects.create(user=user)
@@ -2276,33 +2279,11 @@ def add_to_cart(request):
         shop = ShopInfo.objects.get(user=product.user)
         cart_shop = CartShop.objects.create(cart=cart, shop=shop)
         cart_item = CartItem.objects.create(cart_shop=cart_shop, product=product, quantity=data["quantity"],
-                                            size=data["size"],color=data["color"])
+                                            size=data["size"],color=data["color"],color_name=data["color_name"])
         cart_item.save()
         return Response({
             'code': status.HTTP_200_OK,
-            'msg': 'added item to cart',
-        })
-
-
-@api_view(['POST'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-@buyer_only
-def update_cart(request):
-    data = request.data
-    user = request.user
-    try:
-        cart_item = CartItem.objects.filter(cart_shop__cart__user=user).filter(product__id=data["product"]).first()
-        cart_item.quantity = data["quantity"]
-        cart_item.save()
-        return Response({
-            'code': status.HTTP_200_OK,
-            'msg': 'updated cart',
-        })
-    except Exception as e:
-        return Response({
-            "code": status.HTTP_400_BAD_REQUEST,
-            "message": str(e)
+            'msg': 'added item to cart 3',
         })
 
 @api_view(['DELETE'])

@@ -691,7 +691,7 @@ class CartItems(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
 
     class Meta:
         model = CartItem
-        fields = ['id','product','quantity','product_name','product_price', 'color','size','product_image']
+        fields = ['id','product','quantity','product_name','product_price', 'color','color_name','size','product_image']
 
 class GetCartItem(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
     cart_item = CartItems(many=True)
