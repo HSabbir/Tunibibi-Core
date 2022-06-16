@@ -113,7 +113,7 @@ urlpatterns = [
     path('buyer/follow',follow),
     path('buyer/place-order',placeOrder),
 
-    # path('buyer/updateProfile',updateProfile),
+
     path('buyer/add_product_existing_folder/<int:pk>',add_product_existing_folder),
 
     path('buyer/get_cart',get_cart),
@@ -130,5 +130,7 @@ urlpatterns = [
     path('buyer/update_default_shipping_address/<int:pk>',change_default_shipping_address),
 
 
-    path('buyer/edit_buyer_security',changeSecurityInfo)
+    path('buyer/edit_buyer_security',changeSecurityInfo),
+    path('buyer/updateProfile',updateProfile),
+    path('buyer/followed_shop',get_followed_shop)
 ]

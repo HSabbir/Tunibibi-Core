@@ -244,6 +244,37 @@ def changeSecurityInfo(request):
             "message": str(e)
         })
 
+@api_view(['PATCH'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@parser_classes([ MultiPartParser])
+@buyer_only
+def updateProfile(request):
+    try:
+        data = request.data
+        data_serializer = BuyerInfoUpdateSerialiser(data=data)
+
+        if data_serializer.is_valid():
+            obj = request.user.buyer_auth
+
+            obj.name = data.get("name", obj.name)
+            obj.country = data.get("country", obj.country)
+            obj.address = data.get("address", obj.address)
+            obj.photo = data.get("photo", obj.photo)
+
+            obj.save()
+
+            return Response({
+                'code': status.HTTP_200_OK,
+                'msg': 'Updated Info'
+            })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+
 
 
 @api_view(['POST'])
@@ -2206,37 +2237,6 @@ def follow(request):
             "message": str(e)
         })
 
-# @api_view(['PATCH'])
-# @authentication_classes([JWTAuthentication])
-# @permission_classes([IsAuthenticated])
-# @buyer_only
-# def updateProfile(request):
-#     try:
-#         data = request.data
-#         data_serializer = BuyerInfoUpdateSerialiser(data=data)
-#
-#         if data_serializer.is_valid:
-#             obj = BuyerInfo.objects.filter(id=data['id']).first()
-#
-#             obj.name = data.get("name", obj.name)
-#             obj.country = data.get("country", obj.country)
-#             obj.mobile_number = data.get("mobile_number", obj.mobile_number)
-#             obj.address = data.get("address", obj.address)
-#             obj.photo = data.get("photo", obj.photo)
-#             obj.city = data.get("city", obj.city)
-#             obj.postcode = data.get("postcode", obj.postcode)
-#
-#             obj.save()
-#
-#             return Response({
-#                 'code': status.HTTP_200_OK,
-#                 'msg': 'Updated Info'
-#             })
-#     except Exception as e:
-#         return Response({
-#             "code": status.HTTP_400_BAD_REQUEST,
-#             "message": str(e)
-#         })
 
 
 @api_view(['PATCH'])
@@ -2539,6 +2539,26 @@ def change_default_shipping_address(request,pk):
         return Response({
             "code": 200,
             "message": "Updated default address"
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def get_followed_shop(request):
+    try:
+        shops = ShopOverView.objects.filter(shop__followers__user=request.user)
+        serializers = ShopOverviewSerializer(shops, many=True)
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'OK',
+            'serializers': serializers.data
         })
     except Exception as e:
         return Response({

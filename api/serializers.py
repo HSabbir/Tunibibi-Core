@@ -318,7 +318,7 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
                   'recent_buyer_name','recent_buyer_img','recent_buyer_qty','added_fav','get_coupon']
 
 
-class ShopOverviewSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
+class ShopOverviewSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField('get_user_name')
     img = serializers.SerializerMethodField('get_image')
     followers_count = serializers.ReadOnlyField()
@@ -638,7 +638,7 @@ class BuyTogetherReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSer
 class BuyerInfoUpdateSerialiser(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
     class Meta:
         model = BuyerInfo
-        fields = ['name','country','mobile_number','address','photo','city','postcode']
+        fields = ['name','country','address','photo']
 
         extra_kwargs = {
             "name": {"required": False},
