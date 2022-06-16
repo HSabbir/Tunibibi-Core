@@ -127,5 +127,8 @@ urlpatterns = [
 
     path('buyer/add_shipping_address',add_shipping_address),
     path('buyer/update_shipping_address/<int:pk>',update_shipping_address),
-    path('buyer/update_default_shipping_address/<int:pk>',change_default_shipping_address)
+    path('buyer/update_default_shipping_address/<int:pk>',change_default_shipping_address),
+
+
+    path('buyer/edit_buyer_security',changeSecurityInfo)
 ]

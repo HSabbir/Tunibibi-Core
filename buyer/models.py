@@ -10,6 +10,7 @@ class BuyerInfo(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='buyer_auth', null=True, blank=True)
     name = models.CharField(max_length=200, null=True, blank=True)
     country = models.CharField(max_length=200, null=True, blank=True)
+    email = models.EmailField(blank=True, null=True)
     mobile_number = models.CharField(max_length=20)
     address = models.TextField(null=True)
     photo = models.ImageField(default='default/default-logo.png',null=True,blank=True)

@@ -8,6 +8,13 @@ from rest_framework import serializers
 from rest_framework_friendly_errors.mixins import FriendlyErrorMessagesMixin
 
 
+class EditBuyerSecurity(serializers.Serializer):
+    current_password = serializers.CharField(max_length=30)
+    new_password = serializers.CharField(max_length=30)
+    new_re_password = serializers.CharField(max_length=30)
+    email = serializers.EmailField()
+    phone = serializers.CharField(max_length=20)
+
 class ShopInfoSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
     class Meta:
         model = ShopInfo
@@ -273,7 +280,6 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
 
     def get_seller(self,obj):
         shop = ShopInfo.objects.filter(user=obj.user)
-        print(shop)
         context = {
             "name": shop.business_name,
             "photo": shop.business_logo

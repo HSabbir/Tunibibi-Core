@@ -200,6 +200,53 @@ def tokenObtainBuyer(request):
 
 
 @api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def changeSecurityInfo(request):
+    try:
+        data = request.data
+        user = request.user
+        data_serializer = EditBuyerSecurity(data=data)
+        if data_serializer.is_valid():
+            current_password = data_serializer.validated_data.get('current_password')
+            if not check_password(current_password, user.password):
+                return Response({
+                    "code": 401,
+                    "message": "Current Password is not correct"
+                })
+            new_password = data_serializer.validated_data.get('new_password')
+            new_re_password = data_serializer.validated_data.get('new_re_password')
+
+            if new_password != new_re_password:
+                return Response({
+                    "code": 401,
+                    "message": "Password not match"
+                })
+            user.set_password(new_password)
+            user.save()
+            obj = user.buyer_auth
+
+            email = data_serializer.validated_data.get('email')
+            mobile_number = data_serializer.validated_data.get('phone')
+            obj.email = email
+            obj.mobile_number = mobile_number
+            obj.save
+
+        return Response({
+            "code": 200,
+            "message": "Updated Security Info"
+        })
+
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_401_UNAUTHORIZED,
+            "message": str(e)
+        })
+
+
+
+@api_view(['POST'])
 def tokenRefresh(request):
     try:
         payload = request.data

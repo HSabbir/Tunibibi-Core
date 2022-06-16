@@ -1,3 +1,4 @@
+from seller.models import ShopInfo
 from .importFile import *
 
 def updateSellerRank(country):
