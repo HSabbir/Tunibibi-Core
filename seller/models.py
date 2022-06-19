@@ -240,11 +240,37 @@ class ProductImages(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class BuyTogether(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creator_buy_together')
+    initial_quantity = models.IntegerField(default=1)
     item_need = models.IntegerField()
     buy_together_price = models.FloatField()
+    color = models.TextField(null=True)
+    size = models.TextField(null=True)
+    product_id = models.IntegerField()
     time_end = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def get_product_image(self):
+        try:
+            product = ProductImages.objects.filter(product__id=self.id).first()
+            return product.product_image.url
+        except:
+            return ""
+
+    @property
+    def get_product_name(self):
+        try:
+            product = ShopProduct.objects.filter(id=self.id).first()
+            return product.name
+        except:
+            return ""
+
+class OtherBuyer(models.Model):
+    buyer = models.ForeignKey(User,on_delete=models.CASCADE, related_name='buyer_buy_together')
+    buy_together = models.ForeignKey(BuyTogether,on_delete=models.CASCADE, related_name='groups')
+    quantity = models.IntegerField()
 
 
 class Orders(models.Model):
@@ -267,9 +293,16 @@ class Orders(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class OrderTracker(models.Model):
+    order = models.ForeignKey(Orders, on_delete=models.CASCADE, related_name='order_tracker')
+    title = models.CharField(max_length=50)
+    description = models.CharField(max_length=400)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 class OrderItems(models.Model):
     order = models.ForeignKey(Orders, on_delete=models.CASCADE, related_name='order_item')
-    buy_together = models.ForeignKey(BuyTogether,on_delete=models.PROTECT, null=True, related_name='buy_together_item')
+    buy_together = models.ForeignKey(BuyTogether,on_delete=models.SET_NULL, null=True, related_name='buy_together_item')
     product_id = models.IntegerField()
     item_name = models.CharField(max_length=200)
     quantity = models.IntegerField()

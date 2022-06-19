@@ -32,6 +32,41 @@ class ProductViewset(viewsets.ReadOnlyModelViewSet):
     filter_class = ProductFilter
 
 
+class OrderViewset(GetSerializerClassMixin,viewsets.ReadOnlyModelViewSet):
+    lookup_field = 'order_id'
+    queryset = Orders.objects.all()
+    serializer_class = GetOrderByStatus
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    filter_backends = [filters.SearchFilter,filters.OrderingFilter,filters_b.DjangoFilterBackend]
+    # ordering_fields = ['created_at','basic_price','total_sale']
+    search_fields = ['order_id']
+    filterset_fields = ['order_status']
+
+    serializer_action_classes = {
+        'retrieve': OrderDetails,
+    }
+
+    def get_queryset(self):
+        user = self.request.user
+        return Orders.objects.filter(customer=user)
+
+class OrderTrackerView(viewsets.ReadOnlyModelViewSet):
+    lookup_field = 'order_id'
+    queryset = Orders.objects.all()
+    serializer_class = OrderTrackerSr
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    # filter_backends = [filters.SearchFilter,filters.OrderingFilter,filters_b.DjangoFilterBackend]
+    # # ordering_fields = ['created_at','basic_price','total_sale']
+    # search_fields = ['order_id']
+    # filterset_fields = ['order_status']
+
+    def get_queryset(self):
+        user = self.request.user
+        return Orders.objects.filter(customer=user)
+
+
 class PopularProducts(viewsets.ReadOnlyModelViewSet):
     queryset = ShopProduct.objects.filter(total_sale__gte = 5)
     serializer_class = ShopProductsReadSerializer

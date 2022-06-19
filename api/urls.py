@@ -132,5 +132,6 @@ urlpatterns = [
 
     path('buyer/edit_buyer_security',changeSecurityInfo),
     path('buyer/updateProfile',updateProfile),
-    path('buyer/followed_shop',get_followed_shop)
+    path('buyer/followed_shop',get_followed_shop),
+    path('buyer/get_all_buyTogether',get_all_buyTogether)
 ]

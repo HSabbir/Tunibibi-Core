@@ -5,6 +5,8 @@ from rest_framework import routers
 router = routers.DefaultRouter()
 
 router.register('products',ProductViewset)
+router.register('get_orders',OrderViewset)
+router.register('order_tracker',OrderTrackerView)
 router.register('popular_products',PopularProducts)
 router.register('live',LiveViewsets),
 router.register('shop_overview',ShopOverView),

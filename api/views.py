@@ -1246,7 +1246,12 @@ def placeOrder(request):
 
                 product['order'] = order_instance.id
                 if 'buy_together' in product:
-                    buy_together_obj = BuyTogether.objects.create(item_need=product['item_need']-product['quantity'],
+                    buy_together_obj = BuyTogether.objects.create(creator=request.user,
+                                                                  color=product['color'],
+                                                                  size=product['size'],
+                                                                  product_id=product["product_id"],
+                                                                  initial_quantity = product['quantity'],
+                        item_need=product['item_need']-product['quantity'],
                                                      buy_together_price=product['buy_together_price'])
                     if buy_together_obj.item_need <0:
                         buy_together_obj.item_need = 0
@@ -1259,6 +1264,13 @@ def placeOrder(request):
                 elif 'buy_together_id' in product:
                     buy_together_obj = BuyTogether.objects.filter(id=product['buy_together_id']).first()
                     buy_together_obj.item_need = buy_together_obj.item_need - product['quantity']
+
+                    other_buyer = OtherBuyer.objects.create(
+                        buyer = request.user,
+                        buy_together = buy_together_obj,
+                        quantity=product['quantity']
+                    )
+                    other_buyer.save()
 
                     if buy_together_obj.item_need <0:
                         buy_together_obj.item_need = 0
@@ -2565,3 +2577,24 @@ def get_followed_shop(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def get_all_buyTogether(request):
+    try:
+        buy_together = BuyTogether.objects.filter(creator=request.user)
+        serializers = BuyTogetherSr(buy_together, many=True)
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'OK',
+            'serializers': serializers.data
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
+
+

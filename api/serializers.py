@@ -736,3 +736,81 @@ class BuyerShippingAddressUpdate(FriendlyErrorMessagesMixin,serializers.ModelSer
         model = BuyerSgippingAddress
         fields = ['name','country','mobile_number','street_address','apt_suite_unit','city',
                   'zip_code','default']
+
+class BuyTogetherGroup(serializers.ModelSerializer):
+    buyer_image = serializers.SerializerMethodField('get_image')
+
+    def get_image(self,obj):
+        return obj.buyer.buyer_auth.photo.url
+
+    class Meta:
+        model = OtherBuyer
+        fields = ['buyer_image','quantity']
+
+class BuyTogetherSr(serializers.ModelSerializer):
+    groups = BuyTogetherGroup(many=True)
+
+    class Meta:
+        model = BuyTogether
+        fields = ['initial_quantity',
+                  'item_need','buy_together_price','color','size','time_end','updated_at',
+                  'created_at','get_product_image','get_product_name','groups']
+
+class GetOrderByStatus(serializers.ModelSerializer):
+    product_image = serializers.SerializerMethodField('get_product_image')
+
+    def get_product_image(self,obj):
+        product_id = obj.order_item.first().product_id
+        try:
+            image = ProductImages.objects.filter(product__id=product_id).first().product_image
+            print(image.url)
+            return image.url
+        except:
+            return ""
+
+
+    class Meta:
+        model = Orders
+        fields = ['order_id','item_count','item_total','product_image','payment_method',
+                  'order_status','updated_at','created_at','order_date']
+
+
+class OrderItem(serializers.ModelSerializer):
+    product_image = serializers.SerializerMethodField('get_product_image')
+
+    def get_product_image(self, obj):
+        try:
+            image = ProductImages.objects.filter(product__id=obj.product_id).first().product_image
+            print(image.url)
+            return image.url
+        except:
+            return ""
+    class Meta:
+        model = OrderItems
+        fields = ['item_name','quantity','unit_price','size','color','subtotal','product_image']
+
+class OrderDetails(serializers.ModelSerializer):
+    order_item = OrderItem(many=True)
+    class Meta:
+        model = Orders
+        fields =['order_id','item_count','item_total','grand_total','delivery_fee','shipping_status',
+                  'order_status','updated_at','created_at','order_date','order_item']
+
+
+class OrderTracker(serializers.ModelSerializer):
+    class Meta:
+        model = OrderTracker
+        fields = ['title','description','updated_at','created_at']
+
+
+class OrderTrackerSr(serializers.ModelSerializer):
+    order_tracker = OrderTracker(many=True)
+    order_done = serializers.SerializerMethodField('get_done')
+
+    def get_done(self,obj):
+        return obj.order_tracker.all().count()
+
+    class Meta:
+        model = Orders
+        fields = ['order_id','shipping_status', 'order_done',
+                  'delivery_time', 'updated_at', 'created_at', 'order_date', 'order_tracker']
