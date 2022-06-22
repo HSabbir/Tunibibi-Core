@@ -1,5 +1,6 @@
 import copy
 
+from rest_framework import viewsets, filters, mixins
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import MultiPartParser
 
@@ -2598,3 +2599,23 @@ def get_all_buyTogether(request):
         })
 
 
+class SellerProductView(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ShopProductsListReadSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'slug','category__category_name','subcategory__category_name','product_details']
+
+    def get_queryset(self):
+        user = self.request.user
+        return ShopProduct.objects.filter(user=user)
+
+class UploadVideo(mixins.CreateModelMixin,mixins.ListModelMixin,viewsets.GenericViewSet):
+    serializer_class = UploadVideoSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    queryset = ProductVideo.objects.all()
+
+
+    def perform_create(self, serializer):
+        serializer.save(uploader=self.request.user)

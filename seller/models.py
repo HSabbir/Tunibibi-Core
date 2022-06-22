@@ -200,6 +200,19 @@ class ShopProduct(models.Model):
         return self.get_seller().values()[0]["business_logo"]
 
 
+class ProductVideo(models.Model):
+    uploader = models.ForeignKey(User,related_name='uploader',on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    link = models.CharField(max_length=500)
+    view_count = models.PositiveIntegerField(default=0)
+    products = models.ManyToManyField(ShopProduct,related_name='product')
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
 class Live(models.Model):
     user = models.ForeignKey(ShopInfo,on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
@@ -238,6 +251,8 @@ class ProductImages(models.Model):
     product_image = models.ImageField(upload_to=generate_filename)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
 
 class BuyTogether(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creator_buy_together')

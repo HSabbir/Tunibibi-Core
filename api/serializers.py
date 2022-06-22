@@ -318,6 +318,26 @@ class ShopProductsReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSe
                   'recent_buyer_name','recent_buyer_img','recent_buyer_qty','added_fav','get_coupon']
 
 
+class ShopProductsListReadSerializer(serializers.ModelSerializer):
+    product_image = serializers.SerializerMethodField('get_product_image')
+    seller_id = serializers.SerializerMethodField('get_seller_id')
+    shop_id = serializers.SerializerMethodField('get_shop')
+
+    def get_seller_id(self,obj):
+        return obj.user.id
+
+    def get_shop(self,obj):
+        return obj.user.seller_auth.id
+
+    def get_product_image(self, instance):
+        images = instance.product_image.all()
+        return ProductImagesReadSerializer(images, many=True, context={'request': self.context.get('request')}).data
+
+    class Meta:
+        model = ShopProduct
+        fields = ['id', 'seller_id','shop_id', 'name', 'basic_price', 'slug','product_image']
+
+
 class ShopOverviewSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField('get_user_name')
     img = serializers.SerializerMethodField('get_image')
@@ -814,3 +834,8 @@ class OrderTrackerSr(serializers.ModelSerializer):
         model = Orders
         fields = ['order_id','shipping_status', 'order_done',
                   'delivery_time', 'updated_at', 'created_at', 'order_date', 'order_tracker']
+
+class UploadVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductVideo
+        fields = ['title','link','products']

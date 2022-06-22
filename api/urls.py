@@ -1,7 +1,16 @@
 from django.urls import path, include
 
+from rest_framework import routers
+
 from .views import *
 from .router import *
+
+srouter = routers.DefaultRouter()
+
+srouter.register('shop_product',SellerProductView, basename='ShopProduct')
+srouter.register('upload_video',UploadVideo)
+
+urlpatterns = srouter.urls
 
 urlpatterns = [
     path('seller/check-existing-number', checkExistingMobileNumber),
@@ -133,5 +142,6 @@ urlpatterns = [
     path('buyer/edit_buyer_security',changeSecurityInfo),
     path('buyer/updateProfile',updateProfile),
     path('buyer/followed_shop',get_followed_shop),
-    path('buyer/get_all_buyTogether',get_all_buyTogether)
+    path('buyer/get_all_buyTogether',get_all_buyTogether),
+    path('seller/',include(srouter.urls))
 ]
