@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import uuid
-from buyer.models import BuyerInfo
+from buyer.models import BuyerInfo,BuyerSgippingAddress
 from django.db.models import Sum,Avg
 import json
 from django.core import serializers
@@ -303,6 +303,10 @@ class Orders(models.Model):
     order_status = models.CharField(max_length=200, default="Pending")
     delivery_time = models.CharField(max_length=200, null=True, blank=True)
     shipping_status = models.CharField(max_length=200, null=True, blank=True)
+    shipping_address = models.ForeignKey(BuyerSgippingAddress, on_delete=models.SET_NULL,
+                                         related_name='order_address',
+                                         null=True)
+    shipping_info = models.JSONField()
     order_date = models.DateField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)

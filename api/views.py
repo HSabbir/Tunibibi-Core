@@ -1,10 +1,14 @@
 import copy
 
+import status as status
+from rest_framework import status
+
 from rest_framework import viewsets, filters, mixins
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import MultiPartParser
 
-from .importFile import  *
+from .importFile import *
+
 
 @api_view(['POST'])
 def checkExistingMobileNumber(request):
@@ -45,7 +49,7 @@ def checkExistingMobileNumber(request):
 def setPassword(request):
     try:
         payload = request.data
-        request_serializer = PasswordInputValidator(data=payload,)
+        request_serializer = PasswordInputValidator(data=payload, )
         if request_serializer.is_valid():
             business_country = request_serializer.validated_data.get('business_country')
             mobile_number = request_serializer.validated_data.get('mobile_number')
@@ -80,7 +84,7 @@ def setPassword(request):
                     groups, created = Group.objects.get_or_create(name='Seller')
                     groups.user_set.add(user)
 
-                    updatePoints(user, payload["invitation_code"], business_country,"Seller")
+                    updatePoints(user, payload["invitation_code"], business_country, "Seller")
                     return Response({
                         'code': status.HTTP_200_OK,
                         'message': 'Your password has been set successfully.'
@@ -96,13 +100,13 @@ def setPassword(request):
                 groups.user_set.add(user_instance)
 
                 shop = ShopInfo.objects.create(
-                        user=user_instance,
-                        mobile_number=mobile_number,
-                        business_country=business_country  # edited
-                    )
+                    user=user_instance,
+                    mobile_number=mobile_number,
+                    business_country=business_country  # edited
+                )
                 shop.save
 
-                updatePoints(user_instance, payload["invitation_code"], business_country,"Seller")
+                updatePoints(user_instance, payload["invitation_code"], business_country, "Seller")
 
                 return Response({
                     'code': status.HTTP_200_OK,
@@ -114,14 +118,14 @@ def setPassword(request):
         return Response({
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
-})
+        })
 
 
 @api_view(['POST'])
 def createBuyerAccount(request):
     try:
         payload = request.data
-        request_serializer = BuyerAccountValidator(data=payload,)
+        request_serializer = BuyerAccountValidator(data=payload, )
         if request_serializer.is_valid():
             business_country = request_serializer.validated_data.get('business_country')
             mobile_number = request_serializer.validated_data.get('mobile_number')
@@ -172,7 +176,7 @@ def createBuyerAccount(request):
                 groups, created = Group.objects.get_or_create(name='Buyer')
                 groups.user_set.add(user_instance)
 
-                updatePoints(user_instance, payload["invitation_code"], business_country,"Buyer")
+                updatePoints(user_instance, payload["invitation_code"], business_country, "Buyer")
 
                 return Response({
                     'code': status.HTTP_200_OK,
@@ -184,14 +188,15 @@ def createBuyerAccount(request):
         return Response({
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
-})
+        })
 
 
 @api_view(['POST'])
 def tokenObtainPair(request):
     payload = request.data
-    response = returnToken(payload,'Seller')
+    response = returnToken(payload, 'Seller')
     return Response(response)
+
 
 @api_view(['POST'])
 def tokenObtainBuyer(request):
@@ -245,10 +250,11 @@ def changeSecurityInfo(request):
             "message": str(e)
         })
 
+
 @api_view(['PATCH'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-@parser_classes([ MultiPartParser])
+@parser_classes([MultiPartParser])
 @buyer_only
 def updateProfile(request):
     try:
@@ -274,8 +280,6 @@ def updateProfile(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
-
-
 
 
 @api_view(['POST'])
@@ -938,7 +942,9 @@ def deleteProductImage(request):
             "message": str(e)
         })
 
+
 from django.db import connection
+
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
@@ -960,10 +966,11 @@ def getShopProducts(request):
             "message": str(e)
         })
 
+
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def getSellerRecomendedProducts(request,pk):
+def getSellerRecomendedProducts(request, pk):
     try:
         shop_products = ShopProduct.objects.filter(user=pk).order_by('-created_at')
         if len(shop_products) > 5:
@@ -984,7 +991,7 @@ def getSellerRecomendedProducts(request,pk):
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def getSeller_all_item(request,pk):
+def getSeller_all_item(request, pk):
     try:
         shop_products = ShopProduct.objects.filter(user=pk)
         response_serializer = ShopProductsReadSerializer(shop_products, many=True, context={'request': request})
@@ -1208,12 +1215,7 @@ def placeOrder(request):
         place_order_serializer = PlaceOrderSerializer(data=payload)
         if place_order_serializer.is_valid():
             for product in payload['products']:
-                if 'buy_together' in product:
-                    del product['buy_together']
-                    del product['item_need']
-                    del product['buy_together_price']
-
-                elif 'buy_together_id' in product:
+                if 'buy_together_id' in product:
                     del product['buy_together_id']
                 product_serializer = OrderItemSerializer(data=product)
                 if not product_serializer.is_valid():
@@ -1222,6 +1224,11 @@ def placeOrder(request):
             seller_instance = ShopProduct.objects.get(id=payload['products'][0]['product_id']).user
             customer_instance = request.user
 
+            try:
+                address = BuyerSgippingAddress.objects.get(buyer=request.user,id=payload["shipping_address"])
+            except:
+                return Response(status=status.HTTP_404_NOT_FOUND,data ={"message":"No shipping address found"})
+
             order_instance = Orders.objects.create(
                 seller=seller_instance,
                 customer=customer_instance,
@@ -1229,8 +1236,10 @@ def placeOrder(request):
                 delivery_fee=payload['delivery_fee'],
                 coupon_code=payload['coupon_code'],
                 coupon_discount=payload['coupon_discount'],
-                token_discount= payload['token_discount'],
-                payment_method=payload['payment_method']
+                token_discount=payload['token_discount'],
+                shipping_address = address,
+                shipping_info=payload['shipping_info']
+
             )
 
             date_today = datetime.now().astimezone()
@@ -1240,40 +1249,24 @@ def placeOrder(request):
 
             grand_total = order_instance.delivery_fee - order_instance.coupon_discount
             item_total = 0
-            print(data)
             for product in data['products']:
                 product_instance = ShopProduct.objects.get(id=product['product_id'])
                 product_instance.total_sale += product["quantity"]
 
                 product['order'] = order_instance.id
-                if 'buy_together' in product:
-                    buy_together_obj = BuyTogether.objects.create(creator=request.user,
-                                                                  color=product['color'],
-                                                                  size=product['size'],
-                                                                  product_id=product["product_id"],
-                                                                  initial_quantity = product['quantity'],
-                        item_need=product['item_need']-product['quantity'],
-                                                     buy_together_price=product['buy_together_price'])
-                    if buy_together_obj.item_need <0:
-                        buy_together_obj.item_need = 0
-                    buy_together_obj.save()
-                    del product['buy_together']
-                    del product['item_need']
-                    del product['buy_together_price']
-
-                    product['buy_together'] = buy_together_obj.id
-                elif 'buy_together_id' in product:
+                if 'buy_together_id' in product:
                     buy_together_obj = BuyTogether.objects.filter(id=product['buy_together_id']).first()
-                    buy_together_obj.item_need = buy_together_obj.item_need - product['quantity']
+                    if not buy_together_obj.creator == request.user:
+                        buy_together_obj.item_need = buy_together_obj.item_need - product['quantity']
 
-                    other_buyer = OtherBuyer.objects.create(
-                        buyer = request.user,
-                        buy_together = buy_together_obj,
-                        quantity=product['quantity']
-                    )
-                    other_buyer.save()
+                        other_buyer = OtherBuyer.objects.create(
+                            buyer=request.user,
+                            buy_together=buy_together_obj,
+                            quantity=product['quantity']
+                        )
+                        other_buyer.save()
 
-                    if buy_together_obj.item_need <0:
+                    if buy_together_obj.item_need < 0:
                         buy_together_obj.item_need = 0
                     buy_together_obj.save()
 
@@ -1292,32 +1285,11 @@ def placeOrder(request):
 
             product_instance.save()
 
-
             grand_total += item_total
             order_instance.item_total = item_total
             grand_total = grand_total - order_instance.token_discount
             order_instance.grand_total = grand_total
             order_instance.save()
-
-
-
-            if 'transection_id' in payload:
-                try:
-                    payment_method = PaymentMethods.objects.filter(method_name=payload['payment_method']).first()
-                    obj = PaymentTransection.objects.create(
-                        order=order_instance,
-                        payment_method = payment_method,
-                        transection_id = payload['transection_id']
-                        )
-                    obj.save()
-                except:
-                    return Response({
-                        "code": status.HTTP_200_OK,
-                        "message": "Your order has been saved but error in payment method",
-                        "data": {
-                            "order_id": order_id
-                        }
-                    })
 
             return Response({
                 "code": status.HTTP_200_OK,
@@ -1333,6 +1305,62 @@ def placeOrder(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
+
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def payment(request):
+    data = request.data
+    serializer = PaymentSerializer(data=data)
+    if serializer.is_valid():
+        order_obj = Orders.objects.filter(order_id=data['order_id']).first()
+        if order_obj is None:
+            return Response(
+                status=status.HTTP_404_NOT_FOUND,
+                data={
+                    "message": "No order object found with this order_id"
+                }
+            )
+        elif order_obj.customer != request.user:
+            return Response(
+                status=status.HTTP_401_UNAUTHORIZED,
+                data={
+                    "message": "User is not the buyer of this order"
+                }
+            )
+
+        elif not PaymentMethods.objects.filter(seller=order_obj.seller, method_name=data["payment_method"]).exists():
+            return Response(
+                status=status.HTTP_424_FAILED_DEPENDENCY,
+                data={
+                    "message": "This Payment method not allowed for this seller"
+                }
+            )
+        else:
+            payment_method = PaymentMethods.objects.filter(method_name=data['payment_method']).first()
+            obj = PaymentTransection.objects.create(
+                order=order_obj,
+                payment_method=payment_method,
+                transection_id=data['transection_id']
+            )
+            order_obj.order_status = "Paid"
+            order_obj.save()
+            obj.save()
+
+            return Response(
+                status=status.HTTP_202_ACCEPTED,
+                data={
+                    "message": "Successfully recieved payment and updated order status"
+                })
+
+    else:
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data={
+                "message": serializer.errors
+            })
 
 
 @api_view(['GET'])
@@ -1824,10 +1852,11 @@ def myQR(request):
             "message": str(e)
         })
 
+
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def getReview(request,pk=None):
+def getReview(request, pk=None):
     try:
         reviews = Review.objects.filter(product__id=pk)
 
@@ -1836,7 +1865,7 @@ def getReview(request,pk=None):
         for q in reviews:
             sum_ratings += q.ratings
         try:
-            avg_rating=(sum_ratings/total_review)
+            avg_rating = (sum_ratings / total_review)
         except:
             avg_rating = 0
 
@@ -1845,8 +1874,8 @@ def getReview(request,pk=None):
         return Response({
             'code': status.HTTP_200_OK,
             'msg': 'Ok',
-            'total_review':total_review,
-            'avg_rating':avg_rating,
+            'total_review': total_review,
+            'avg_rating': avg_rating,
             'serializers': serializer.data
         })
     except Exception as e:
@@ -1854,6 +1883,7 @@ def getReview(request,pk=None):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
+
 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
@@ -1881,7 +1911,7 @@ def generate_promo_code(type):
             string.ascii_uppercase + string.digits, k=s))
         promo_code = "#Tuni" + str(promo_code)
         check_exists = False
-        if type== "Seller":
+        if type == "Seller":
             try:
                 check_exists = InvitationCode.objects.filter(code=promo_code).exists()
             except:
@@ -1894,6 +1924,7 @@ def generate_promo_code(type):
 
         if not check_exists:
             return promo_code
+
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
@@ -1909,6 +1940,7 @@ def invitation(request):
         'invitation': code,
         'msg': 'Promo code generated successfully!'
     })
+
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
@@ -1949,6 +1981,7 @@ def getLeaderboard(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
+
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
@@ -1994,8 +2027,6 @@ def RewardForPoint(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
-
-
 
 
 @api_view(['GET'])
@@ -2118,6 +2149,7 @@ def buyerclaimrecharge(request):
             "message": str(e)
         })
 
+
 @api_view(['POST'])
 def how_it_works(request):
     try:
@@ -2178,6 +2210,7 @@ def current_buyer_status(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
+
 
 @api_view(['POST'])
 def reward_post(request):
@@ -2251,12 +2284,11 @@ def follow(request):
         })
 
 
-
 @api_view(['PATCH'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 @buyer_only
-def add_product_existing_folder(request,pk):
+def add_product_existing_folder(request, pk):
     try:
         buyer = request.user
         data = request.data
@@ -2299,6 +2331,7 @@ def get_cart(request):
             "message": str(e)
         })
 
+
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -2312,8 +2345,8 @@ def add_to_cart(request):
         try:
             product = ShopProduct.objects.get(id=data["product"])
             cart_shop = CartShop.objects.filter(shop__user=product.user).first()
-            cart_item = CartItem.objects.create(cart_shop=cart_shop,product=product,quantity=data["quantity"],
-                                                size=data["size"],color=data["color"],color_name=data["color_name"])
+            cart_item = CartItem.objects.create(cart_shop=cart_shop, product=product, quantity=data["quantity"],
+                                                size=data["size"], color=data["color"], color_name=data["color_name"])
             cart_item.save()
             cart_shop.save()
             cart.save()
@@ -2324,9 +2357,9 @@ def add_to_cart(request):
         except:
             product = ShopProduct.objects.get(id=data["product"])
             shop = ShopInfo.objects.get(user=product.user)
-            cart_shop = CartShop.objects.create(cart=cart,shop=shop)
+            cart_shop = CartShop.objects.create(cart=cart, shop=shop)
             cart_item = CartItem.objects.create(cart_shop=cart_shop, product=product, quantity=data["quantity"],
-                                                size=data["size"],color=data["color"],color_name=data["color_name"])
+                                                size=data["size"], color=data["color"], color_name=data["color_name"])
             cart_item.save()
             cart_shop.save()
             return Response({
@@ -2339,12 +2372,13 @@ def add_to_cart(request):
         shop = ShopInfo.objects.get(user=product.user)
         cart_shop = CartShop.objects.create(cart=cart, shop=shop)
         cart_item = CartItem.objects.create(cart_shop=cart_shop, product=product, quantity=data["quantity"],
-                                            size=data["size"],color=data["color"],color_name=data["color_name"])
+                                            size=data["size"], color=data["color"], color_name=data["color_name"])
         cart_item.save()
         return Response({
             'code': status.HTTP_200_OK,
             'msg': 'added item to cart 3',
         })
+
 
 @api_view(['DELETE'])
 @authentication_classes([JWTAuthentication])
@@ -2358,7 +2392,7 @@ def remove_cart_item(request):
         shop = cart_item.cart_shop
         cart_item.delete()
         count_shop_item = CartItem.objects.filter(cart_shop=shop).count()
-        if count_shop_item < 1 :
+        if count_shop_item < 1:
             shop.delete()
         return Response({
             'code': status.HTTP_200_OK,
@@ -2369,6 +2403,7 @@ def remove_cart_item(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
+
 
 @api_view(['DELETE'])
 @authentication_classes([JWTAuthentication])
@@ -2390,6 +2425,7 @@ def remove_cart_item_by_store(request):
             "message": str(e)
         })
 
+
 @api_view(['DELETE'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -2409,6 +2445,7 @@ def remove_all_item(request):
             "code": status.HTTP_400_BAD_REQUEST,
             "message": str(e)
         })
+
 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
@@ -2431,10 +2468,11 @@ def update_cart(request):
             "message": str(e)
         })
 
+
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-@parser_classes([ MultiPartParser])
+@parser_classes([MultiPartParser])
 @buyer_only
 def upload_bank_reciept(request):
     data = request.data
@@ -2446,13 +2484,13 @@ def upload_bank_reciept(request):
         transection_id = "#TBANK" + str(transection_id)
         data["transection_id"] = transection_id
         data["user"] = user.id
-        serializer = UploadBankReciept(data=data, context={'request':request})
+        serializer = UploadBankReciept(data=data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
         return Response({
             'code': status.HTTP_200_OK,
             'msg': 'uploaded reciept',
-            'transection_id':transection_id
+            'transection_id': transection_id
         })
     except Exception as e:
         return Response({
@@ -2482,7 +2520,7 @@ def add_shipping_address(request):
             return Response({
                 "code": 200,
                 "message": "Added Shipping Address",
-                "data":serializer.data
+                "data": serializer.data
             })
 
     except Exception as e:
@@ -2491,12 +2529,12 @@ def add_shipping_address(request):
             "message": str(e)
         })
 
+
 @api_view(['PUT'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 @buyer_only
-def update_shipping_address(request,pk):
-
+def update_shipping_address(request, pk):
     try:
         data = request.data
         data_serializer = BuyerShippingAddressUpdate(data=data)
@@ -2512,9 +2550,10 @@ def update_shipping_address(request,pk):
             obj.city = data.get("city", obj.city)
             obj.zip_code = data.get("zip_code", obj.zip_code)
 
-            if data["default"] == True :
+            if data["default"] == True:
                 try:
-                    previous_default = BuyerSgippingAddress.objects.filter(buyer=request.user).filter(default=True).first()
+                    previous_default = BuyerSgippingAddress.objects.filter(buyer=request.user).filter(
+                        default=True).first()
                     previous_default.default = False
                     previous_default.save()
                 except:
@@ -2525,7 +2564,7 @@ def update_shipping_address(request,pk):
                 return Response({
                     'code': status.HTTP_200_OK,
                     'msg': 'Updated Info',
-                    'data':data_serializer.data
+                    'data': data_serializer.data
                 })
 
     except Exception as e:
@@ -2534,14 +2573,15 @@ def update_shipping_address(request,pk):
             "message": str(e)
         })
 
+
 @api_view(['PATCH'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 @buyer_only
-def change_default_shipping_address(request,pk):
+def change_default_shipping_address(request, pk):
     try:
         buyer = request.user
-        current_default = BuyerSgippingAddress.objects.filter(buyer=buyer,default=True).first()
+        current_default = BuyerSgippingAddress.objects.filter(buyer=buyer, default=True).first()
         current_default.default = False
         current_default.save()
 
@@ -2579,6 +2619,7 @@ def get_followed_shop(request):
             "message": str(e)
         })
 
+
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -2604,18 +2645,18 @@ class SellerProductView(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'slug','category__category_name','subcategory__category_name','product_details']
+    search_fields = ['name', 'slug', 'category__category_name', 'subcategory__category_name', 'product_details']
 
     def get_queryset(self):
         user = self.request.user
         return ShopProduct.objects.filter(user=user)
 
-class UploadVideo(mixins.CreateModelMixin,mixins.ListModelMixin,viewsets.GenericViewSet):
+
+class UploadVideo(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = UploadVideoSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     queryset = ProductVideo.objects.all()
-
 
     def perform_create(self, serializer):
         serializer.save(uploader=self.request.user)

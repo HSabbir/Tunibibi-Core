@@ -459,7 +459,10 @@ class PlaceOrderSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializ
 
     class Meta:
         model = Orders
-        fields = ['products', 'delivery_fee', 'coupon_code', 'coupon_discount', 'token_discount', 'payment_method']
+        fields = ['products', 'delivery_fee', 'coupon_code', 'coupon_discount',
+                  'token_discount',
+                  'shipping_info',
+                  'shipping_address']
 
 
 class OrderItemSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
@@ -643,16 +646,12 @@ class PointSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
 
 
 
-class BuyTogetherReadSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
-    order_item = serializers.SerializerMethodField('get_buytogether')
-
-    def get_buytogether(self,obj):
-        order_item = OrderItems.objects.filter(buy_together=obj).first()
-        return OrderItemSerializer(order_item, context={'request': self.context.get('request')}).data
-
+class BuyTogetherSerializer(FriendlyErrorMessagesMixin, serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
     class Meta:
         model = BuyTogether
-        fields = '__all__'
+        fields = ['id','initial_quantity','item_need','buy_together_price',
+                  'color','size','product_id']
 
 
 class BuyerInfoUpdateSerialiser(FriendlyErrorMessagesMixin,serializers.ModelSerializer):
@@ -772,7 +771,7 @@ class BuyTogetherSr(serializers.ModelSerializer):
 
     class Meta:
         model = BuyTogether
-        fields = ['initial_quantity',
+        fields = ['id','initial_quantity',
                   'item_need','buy_together_price','color','size','time_end','updated_at',
                   'created_at','get_product_image','get_product_name','groups']
 
@@ -813,7 +812,7 @@ class OrderDetails(serializers.ModelSerializer):
     order_item = OrderItem(many=True)
     class Meta:
         model = Orders
-        fields =['order_id','item_count','item_total','grand_total','delivery_fee','shipping_status',
+        fields =['order_id','item_count','item_total','grand_total','delivery_fee','shipping_info',
                   'order_status','updated_at','created_at','order_date','order_item']
 
 
@@ -832,10 +831,16 @@ class OrderTrackerSr(serializers.ModelSerializer):
 
     class Meta:
         model = Orders
-        fields = ['order_id','shipping_status', 'order_done',
+        fields = ['order_id','shipping_info', 'order_done',
                   'delivery_time', 'updated_at', 'created_at', 'order_date', 'order_tracker']
 
 class UploadVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVideo
         fields = ['title','link','products']
+
+
+class PaymentSerializer(serializers.Serializer):
+    order_id = serializers.CharField()
+    payment_method = serializers.CharField()
+    transection_id = serializers.CharField()

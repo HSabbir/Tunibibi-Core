@@ -5,6 +5,7 @@ from .mixins import GetSerializerClassMixin
 from ..decorators import  buyer_only
 from rest_framework import viewsets, mixins
 from rest_framework import filters
+from .custom_permission import IsBuyer
 
 class ProductFilter(filters_b.FilterSet):
     seller_id = filters_b.NumberFilter(field_name="user__id", lookup_expr="iexact")
@@ -90,9 +91,13 @@ class ShopOverView(viewsets.ReadOnlyModelViewSet):
 
 class BuyTogether(viewsets.ModelViewSet):
     queryset = BuyTogether.objects.all()
-    serializer_class = BuyTogetherReadSerializer
-    permission_classes = [IsAuthenticated]
+    serializer_class = BuyTogetherSerializer
+    permission_classes = [IsBuyer]
     authentication_classes = [JWTAuthentication]
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
+
 
 class GetAllFolderOfBuyer(viewsets.ReadOnlyModelViewSet):
     serializer_class = GetAllFolderName
