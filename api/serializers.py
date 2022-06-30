@@ -840,6 +840,25 @@ class UploadVideoSerializer(serializers.ModelSerializer):
         fields = ['title','link','products']
 
 
+class videoProduct(serializers.ModelSerializer):
+    product_image = serializers.SerializerMethodField('get_product_image')
+
+    def get_product_image(self, obj):
+        try:
+            image = ProductImages.objects.filter(product__id=obj.product_id).first().product_image
+            return image.url
+        except:
+            return ""
+    class Meta:
+        model = ShopProduct
+        fields = ['id','basic_price','product_image']
+
+class getVideoSerializer(serializers.ModelSerializer):
+    products = videoProduct(many=True)
+    class Meta:
+        model = ProductVideo
+        fields = ['title','link','products']
+
 class PaymentSerializer(serializers.Serializer):
     order_id = serializers.CharField()
     payment_method = serializers.CharField()

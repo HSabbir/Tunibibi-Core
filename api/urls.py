@@ -144,5 +144,6 @@ urlpatterns = [
     path('buyer/followed_shop',get_followed_shop),
     path('buyer/get_all_buyTogether',get_all_buyTogether),
     path('seller/',include(srouter.urls)),
-    path('buyer/payment',payment)
+    path('buyer/payment',payment),
+    path('buyer/getAllVideoFollowerShop',getAllVideoFollowerShop)
 ]

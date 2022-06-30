@@ -2660,3 +2660,23 @@ class UploadVideo(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.Gener
 
     def perform_create(self, serializer):
         serializer.save(uploader=self.request.user)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@buyer_only
+def getAllVideoFollowerShop(request):
+    try:
+        videos = ProductVideo.objects.filter(uploader__seller_auth__followers__user=request.user)
+        serializers = getVideoSerializer(videos, many=True)
+        return Response({
+            'code': status.HTTP_200_OK,
+            'msg': 'OK',
+            'serializers': serializers.data
+        })
+    except Exception as e:
+        return Response({
+            "code": status.HTTP_400_BAD_REQUEST,
+            "message": str(e)
+        })
