@@ -300,7 +300,7 @@ class Orders(models.Model):
     token_discount = models.FloatField(default=0)
     grand_total = models.FloatField(default=0)
     payment_method = models.CharField(max_length=200)
-    order_status = models.CharField(max_length=200, default="Pending")
+    order_status = models.CharField(max_length=200, default="Unpaid")
     delivery_time = models.CharField(max_length=200, null=True, blank=True)
     shipping_status = models.CharField(max_length=200, null=True, blank=True)
     shipping_address = models.ForeignKey(BuyerSgippingAddress, on_delete=models.SET_NULL,
